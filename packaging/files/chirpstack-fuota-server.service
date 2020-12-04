@@ -1,0 +1,14 @@
+[Unit]
+Description=ChirpStack FUOTA Server
+Documentation=https://www.chirpstack.io/
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+User=fuotaserver
+Group=fuotaserver
+ExecStart=/usr/bin/chirpstack-fuota-server
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target

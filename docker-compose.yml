@@ -1,0 +1,19 @@
+version: "2"
+services:
+  chirpstack-fuota-server:
+    build:
+      context: .
+      dockerfile: Dockerfile-devel
+    volumes:
+      - ./:/chirpstack-fuota-server
+    links:
+      - postgres
+    environment:
+      - TEST_POSTGRES_DSN=postgres://chirpstack_fuota:chirpstack_fuota@postgres/chirpstack_fuota?sslmode=disable
+
+  postgres:
+    image: postgres:9.6-alpine
+    environment:
+      - POSTGRES_HOST_AUTH_METHOD=trust
+    volumes:
+      - ./.docker-compose/postgresql/initdb:/docker-entrypoint-initdb.d

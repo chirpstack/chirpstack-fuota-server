@@ -1,0 +1,15 @@
+# hidden files
+.*
+
+# logs
+*.log
+
+# test coverage
+coverage.out
+
+# configuration
+/*.toml
+
+# builds
+/dist
+/build

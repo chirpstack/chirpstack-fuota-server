@@ -1,0 +1,42 @@
+project_name: chirpstack-fuota-server
+
+builds:
+  - main: cmd/chirpstack-fuota-server/main.go
+    binary: chirpstack-fuota-server
+    goos:
+      - windows
+      - darwin
+      - linux
+    goarch:
+      - amd64
+      - 386
+      - arm
+      - arm64
+    goarm:
+      - 5
+      - 6
+      - 7
+    ignore:
+      - goos: darwin
+        goarch: 386
+
+release:
+  disable: true
+
+nfpm:
+  vendor: ChirpStack
+  homepage: https://www.chirpstack.io/
+  maintainer: Orne Brocaar <info@brocaar.com>
+  description: ChirpStack FUOTA Server
+  license: MIT
+  formats:
+    - deb
+    - rpm
+  bindir: /usr/bin
+  files:
+    "packaging/files/chirpstack-fuota-server.service": "/lib/systemd/system/chirpstack-fuota-server.service"
+  config_files:
+    "packaging/files/chirpstack-fuota-server.toml": "/etc/chirpstack-fuota-server/chirpstack-fuota-server.toml"
+  scripts:
+    postinstall: "packaging/scripts/post-install.sh"
+    preremove: "packaging/scripts/pre-remove.sh"
