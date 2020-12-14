@@ -42,6 +42,9 @@ func init() {
 	viper.SetDefault("application_server.event_handler.http.bind", "0.0.0.0:8090")
 	viper.SetDefault("application_server.api.server", "localhost:8080")
 	viper.SetDefault("fuota_server.api.bind", "0.0.0.0:8070")
+
+	rootCmd.AddCommand(configCmd)
+	rootCmd.AddCommand(versionCmd)
 }
 
 // Execute executes the root command.
