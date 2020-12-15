@@ -85,6 +85,31 @@ for the application(s) you want to use with the ChirpStack FUOTA Server. Make
 sure that this matches with the host / IP and port the ChirpStack FUOTA Server
 event handler is binding to. As well make sure that the marshaler matches.
 
+## Usage and configuration file
+
+Please refer to the CLI interface for usage information and for the command to
+generate a configuration file:
+
+```
+ChirpStack FUOTA Server
+
+Usage:
+  chirpstack-fuota-server [flags]
+  chirpstack-fuota-server [command]
+
+Available Commands:
+  configfile  Print the ChirpStack FUOTA Server configuration file
+  help        Help about any command
+  version     Print the ChirpStack FUOTA Server version
+
+Flags:
+  -c, --config string   path to configuration file (optional)
+  -h, --help            help for chirpstack-fuota-server
+      --log-level int   debug=5, info=4, error=2, fatal=1, panic=0 (default 4)
+
+Use "chirpstack-fuota-server [command] --help" for more information about a command.
+```
+
 ## Resources
 
 For a better understanding of FUOTA, please refer to the following documents
