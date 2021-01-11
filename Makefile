@@ -37,3 +37,4 @@ dev-requirements:
 	go install github.com/golang-migrate/migrate/v4/cmd/migrate
 	go install github.com/goreleaser/goreleaser
 	go install github.com/goreleaser/nfpm
+	go install github.com/golang/mock/mockgen

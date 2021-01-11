@@ -82,3 +82,7 @@ func MulticastGroupClient() api.MulticastGroupServiceClient {
 func DeviceQueueClient() api.DeviceQueueServiceClient {
 	return deviceQueueClient
 }
+
+func SetDeviceQueueClient(c api.DeviceQueueServiceClient) {
+	deviceQueueClient = c
+}
