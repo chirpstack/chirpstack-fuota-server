@@ -3,7 +3,7 @@ module github.com/brocaar/chirpstack-fuota-server
 go 1.15
 
 require (
-	github.com/brocaar/chirpstack-api/go/v3 v3.9.0
+	github.com/brocaar/chirpstack-api/go/v3 v3.9.11
 	github.com/brocaar/lorawan v0.0.0-20201030140234-f23da2d4a303
 	github.com/gofrs/uuid v3.3.0+incompatible
 	github.com/golang-migrate/migrate/v4 v4.14.1

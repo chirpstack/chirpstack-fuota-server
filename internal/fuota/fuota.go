@@ -461,6 +461,11 @@ func (d *Deployment) handleFragSessionSetupAns(ctx context.Context, devEUI loraw
 		// if all devices have finished the fragmentation-session setup, publish to done chan.
 		done := true
 		for _, state := range d.deviceState {
+			// ignore devices that have not setup multicast
+			if !state.getMulticastSetup() {
+				continue
+			}
+
 			if !state.getFragmentationSessionSetup() {
 				done = false
 			}
@@ -520,6 +525,11 @@ func (d *Deployment) handleMcClassCSessionAns(ctx context.Context, devEUI lorawa
 		// if all devices have finished the multicast class-c session setup, publish to done chan.
 		done := true
 		for _, state := range d.deviceState {
+			// ignore devices that have not setup the fragmentation session
+			if !state.getFragmentationSessionSetup() {
+				continue
+			}
+
 			if !state.getMulticastSessionSetup() {
 				done = false
 			}
@@ -579,6 +589,11 @@ func (d *Deployment) handleFragSessionStatusAns(ctx context.Context, devEUI lora
 		// if all devices have finished the frag session status, publish to done chan.
 		done := true
 		for _, state := range d.deviceState {
+			// ignore devices that do not have the multicast-session setup
+			if !state.getMulticastSessionSetup() {
+				continue
+			}
+
 			if !state.getFragmentationSessionStatus() {
 				done = false
 			}
@@ -952,6 +967,11 @@ devLoop:
 		d.sessionEndTime = d.sessionStartTime.Add(time.Duration(1<<d.opts.MulticastTimeout) * time.Second)
 
 		for devEUI := range d.opts.Devices {
+			// ignore devices that have not setup the fragmentation session
+			if !d.deviceState[devEUI].getFragmentationSessionSetup() {
+				continue
+			}
+
 			if d.deviceState[devEUI].getMulticastSessionSetup() {
 				continue
 			}
@@ -1122,6 +1142,11 @@ devLoop:
 		}
 
 		for devEUI := range d.opts.Devices {
+			// ignore devices that do not have the multicast-session setup
+			if !d.deviceState[devEUI].getMulticastSessionSetup() {
+				continue
+			}
+
 			if d.deviceState[devEUI].getFragmentationSessionStatus() {
 				continue
 			}
