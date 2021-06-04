@@ -25,19 +25,20 @@ func NewFUOTAServerAPI() *FUOTAServerAPI {
 // CreateDeployment creates the given FUOTA deployment.
 func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateDeploymentRequest) (*fapi.CreateDeploymentResponse, error) {
 	opts := fuota.DeploymentOptions{
-		ApplicationID:             req.GetDeployment().ApplicationId,
-		Devices:                   make(map[lorawan.EUI64]fuota.DeviceOptions),
-		MulticastDR:               uint8(req.GetDeployment().MulticastDr),
-		MulticastFrequency:        req.GetDeployment().MulticastFrequency,
-		MulticastGroupID:          uint8(req.GetDeployment().MulticastGroupId),
-		MulticastTimeout:          uint8(req.GetDeployment().MulticastTimeout),
-		FragSize:                  int(req.GetDeployment().FragmentationFragmentSize),
-		Payload:                   req.GetDeployment().Payload,
-		Redundancy:                int(req.GetDeployment().FragmentationRedundancy),
-		FragmentationSessionIndex: uint8(req.GetDeployment().FragmentationSessionIndex),
-		FragmentationMatrix:       uint8(req.GetDeployment().FragmentationMatrix),
-		BlockAckDelay:             uint8(req.GetDeployment().FragmentationBlockAckDelay),
-		UnicastAttemptCount:       int(req.GetDeployment().UnicastAttemptCount),
+		ApplicationID:                     req.GetDeployment().ApplicationId,
+		Devices:                           make(map[lorawan.EUI64]fuota.DeviceOptions),
+		MulticastDR:                       uint8(req.GetDeployment().MulticastDr),
+		MulticastFrequency:                req.GetDeployment().MulticastFrequency,
+		MulticastGroupID:                  uint8(req.GetDeployment().MulticastGroupId),
+		MulticastTimeout:                  uint8(req.GetDeployment().MulticastTimeout),
+		FragSize:                          int(req.GetDeployment().FragmentationFragmentSize),
+		Payload:                           req.GetDeployment().Payload,
+		Redundancy:                        int(req.GetDeployment().FragmentationRedundancy),
+		FragmentationSessionIndex:         uint8(req.GetDeployment().FragmentationSessionIndex),
+		FragmentationMatrix:               uint8(req.GetDeployment().FragmentationMatrix),
+		BlockAckDelay:                     uint8(req.GetDeployment().FragmentationBlockAckDelay),
+		UnicastAttemptCount:               int(req.GetDeployment().UnicastAttemptCount),
+		RequestFragmentationSessionStatus: fuota.FragmentationSessionStatusRequestType(req.GetDeployment().RequestFragmentationSessionStatus.String()),
 	}
 
 	for _, d := range req.GetDeployment().Devices {

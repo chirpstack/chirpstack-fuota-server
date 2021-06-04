@@ -26,6 +26,16 @@ import (
 	"github.com/brocaar/lorawan/gps"
 )
 
+// FragmentationSessionStatusRequestType type.
+type FragmentationSessionStatusRequestType string
+
+// RequestFragmentationSessionStatus options.
+const (
+	RequestFragmentationSessionStatusAfterFragmentEnqueue FragmentationSessionStatusRequestType = "AFTER_FRAGMENT_ENQUEUE"
+	RequestFragmentationSessionStatusAfterSessionTimeout  FragmentationSessionStatusRequestType = "AFTER_SESSION_TIMEOUT"
+	RequestFragmentationSessionStatusNoRequest            FragmentationSessionStatusRequestType = "NO_REQUEST"
+)
+
 // Deployments defines the FUOTA deployment struct.
 type Deployment struct {
 	opts DeploymentOptions
@@ -124,6 +134,10 @@ type DeploymentOptions struct {
 
 	// Descriptor.
 	Descriptor [4]byte
+
+	// RequestFragmentationSessionStatus defines if and when the frag-session
+	// status must be requested.
+	RequestFragmentationSessionStatus FragmentationSessionStatusRequestType
 }
 
 // DeviceOptions holds the device options.
@@ -256,6 +270,7 @@ func (d *Deployment) Run(ctx context.Context) error {
 		d.stepMulticastClassCSessionSetup,
 		d.stepEnqueue,
 		d.stepFragSessionStatus,
+		d.stepWaitUntilTimeout,
 		d.stepDeleteMulticastGroup,
 	}
 
@@ -665,6 +680,23 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 		"deployment_id":      d.GetID(),
 		"multicast_group_id": resp.Id,
 	}).Info("fuota: multicast-group created")
+
+	return nil
+}
+
+// Wait until multicast-session timeout.
+// This is needed in case the fragmentation-session status request step is skipped.
+// We don't want to cleanup the multicast-group before the multicast-session has
+// expired.
+func (d *Deployment) stepWaitUntilTimeout(ctx context.Context) error {
+	timeDiff := d.sessionEndTime.Sub(time.Now())
+	if timeDiff > 0 {
+		log.WithFields(log.Fields{
+			"deployment_id": d.GetID(),
+			"sleep_time":    timeDiff,
+		}).Info("fuota: waiting for multicast-session to end for devices")
+		time.Sleep(timeDiff)
+	}
 
 	return nil
 }
@@ -1129,6 +1161,22 @@ func (d *Deployment) stepEnqueue(ctx context.Context) error {
 }
 
 func (d *Deployment) stepFragSessionStatus(ctx context.Context) error {
+	if d.opts.RequestFragmentationSessionStatus == RequestFragmentationSessionStatusNoRequest {
+		log.WithField("deployment_id", d.GetID()).Info("fuota: skipping fragmentation-session status request as requested")
+		return nil
+	}
+
+	if d.opts.RequestFragmentationSessionStatus == RequestFragmentationSessionStatusAfterSessionTimeout {
+		timeDiff := d.sessionEndTime.Sub(time.Now())
+		if timeDiff > 0 {
+			log.WithFields(log.Fields{
+				"deployment_id": d.GetID(),
+				"sleep_time":    timeDiff,
+			}).Info("fuota: waiting for multicast-session to end for devices before sending fragmentation-session status request")
+			time.Sleep(timeDiff)
+		}
+	}
+
 	log.WithField("deployment_id", d.GetID()).Info("fuota: starting fragmentation-session status request for devices")
 
 	attempt := 0
@@ -1204,13 +1252,15 @@ devLoop:
 		}
 
 		// wait until multicast-session has ended for all devices
-		timeDiff := d.sessionEndTime.Sub(time.Now())
-		if timeDiff > 0 {
-			log.WithFields(log.Fields{
-				"deployment_id": d.GetID(),
-				"sleep_time":    timeDiff,
-			}).Info("fuota: waiting for multicast-session to end for devices")
-			time.Sleep(timeDiff)
+		if d.opts.RequestFragmentationSessionStatus != RequestFragmentationSessionStatusAfterSessionTimeout {
+			timeDiff := d.sessionEndTime.Sub(time.Now())
+			if timeDiff > 0 {
+				log.WithFields(log.Fields{
+					"deployment_id": d.GetID(),
+					"sleep_time":    timeDiff,
+				}).Info("fuota: waiting for multicast-session to end for devices")
+				time.Sleep(timeDiff)
+			}
 		}
 
 		select {
