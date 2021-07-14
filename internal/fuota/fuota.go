@@ -647,24 +647,16 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 		return fmt.Errorf("get McNetSKey error: %s", err)
 	}
 
-	// get service-profile id
-	app, err := as.ApplicationClient().Get(ctx, &api.GetApplicationRequest{
-		Id: d.opts.ApplicationID,
-	})
-	if err != nil {
-		return fmt.Errorf("get application error: %w", err)
-	}
-
 	mg := api.MulticastGroup{
-		Name:             fmt.Sprintf("fuota-%s", d.GetID()),
-		McAddr:           d.mcAddr.String(),
-		McNwkSKey:        mcNetSKey.String(),
-		McAppSKey:        mcAppSKey.String(),
-		GroupType:        d.opts.MulticastGroupType,
-		Dr:               uint32(d.opts.MulticastDR),
-		Frequency:        d.opts.MulticastFrequency,
-		PingSlotPeriod:   uint32(d.opts.MulticastPingSlotPeriod),
-		ServiceProfileId: app.Application.ServiceProfileId,
+		Name:           fmt.Sprintf("fuota-%s", d.GetID()),
+		McAddr:         d.mcAddr.String(),
+		McNwkSKey:      mcNetSKey.String(),
+		McAppSKey:      mcAppSKey.String(),
+		GroupType:      d.opts.MulticastGroupType,
+		Dr:             uint32(d.opts.MulticastDR),
+		Frequency:      d.opts.MulticastFrequency,
+		PingSlotPeriod: uint32(d.opts.MulticastPingSlotPeriod),
+		ApplicationId:  d.opts.ApplicationID,
 	}
 
 	resp, err := as.MulticastGroupClient().Create(ctx, &api.CreateMulticastGroupRequest{
