@@ -330,6 +330,12 @@ func (d *Deployment) handleMulticastSetupCommand(ctx context.Context, devEUI lor
 			return fmt.Errorf("expected *multicastsetup.McGroupSetupAnsPayload, got: %T", cmd.Payload)
 		}
 		return d.handleMcGroupSetupAns(ctx, devEUI, pl)
+	case multicastsetup.McClassBSessionAns:
+		pl, ok := cmd.Payload.(*multicastsetup.McClassBSessionAnsPayload)
+		if !ok {
+			return fmt.Errorf("expected *multicastsetup.McClassBSessionAnsPayload, got: %T", cmd.Payload)
+		}
+		return d.handleMcClassBSessionAns(ctx, devEUI, pl)
 	case multicastsetup.McClassCSessionAns:
 		pl, ok := cmd.Payload.(*multicastsetup.McClassCSessionAnsPayload)
 		if !ok {
@@ -487,6 +493,70 @@ func (d *Deployment) handleFragSessionSetupAns(ctx context.Context, devEUI loraw
 		}
 		if done {
 			d.fragmentationSessionSetupDone <- struct{}{}
+		}
+	}
+
+	return nil
+}
+
+func (d *Deployment) handleMcClassBSessionAns(ctx context.Context, devEUI lorawan.EUI64, pl *multicastsetup.McClassBSessionAnsPayload) error {
+	log.WithFields(log.Fields{
+		"deployment_id":      d.GetID(),
+		"dev_eui":            devEUI,
+		"mc_group_undefined": pl.StatusAndMcGroupID.McGroupUndefined,
+		"freq_error":         pl.StatusAndMcGroupID.FreqError,
+		"dr_error":           pl.StatusAndMcGroupID.DRError,
+		"mc_group_id":        pl.StatusAndMcGroupID.McGroupID,
+	}).Info("fuota: McClassBSessionAns received")
+
+	dl := storage.DeploymentLog{
+		DeploymentID: d.GetID(),
+		DevEUI:       devEUI,
+		FPort:        multicastsetup.DefaultFPort,
+		Command:      "McClassBSessionAns",
+		Fields: hstore.Hstore{
+			Map: map[string]sql.NullString{
+				"mc_group_undefined": sql.NullString{Valid: true, String: fmt.Sprintf("%t", pl.StatusAndMcGroupID.McGroupUndefined)},
+				"freq_error":         sql.NullString{Valid: true, String: fmt.Sprintf("%t", pl.StatusAndMcGroupID.FreqError)},
+				"dr_error":           sql.NullString{Valid: true, String: fmt.Sprintf("%t", pl.StatusAndMcGroupID.DRError)},
+				"mc_group_id":        sql.NullString{Valid: true, String: fmt.Sprintf("%d", pl.StatusAndMcGroupID.McGroupID)},
+			},
+		},
+	}
+	if err := storage.CreateDeploymentLog(context.Background(), storage.DB(), &dl); err != nil {
+		log.WithError(err).Error("fuota: create deployment log error")
+	}
+
+	if pl.StatusAndMcGroupID.McGroupID == d.opts.MulticastGroupID && (!pl.StatusAndMcGroupID.McGroupUndefined && !pl.StatusAndMcGroupID.FreqError && !pl.StatusAndMcGroupID.DRError) {
+		// update the device state
+		if state, ok := d.deviceState[devEUI]; ok {
+			state.setMulicastSessionSetup(true)
+		}
+
+		dd, err := storage.GetDeploymentDevice(ctx, storage.DB(), d.GetID(), devEUI)
+		if err != nil {
+			return fmt.Errorf("get deployment device error: %w", err)
+		}
+		now := time.Now()
+		dd.MCSessionCompletedAt = &now
+		if err := storage.UpdateDeploymentDevice(ctx, storage.DB(), &dd); err != nil {
+			return fmt.Errorf("update deployment device error: %w", err)
+		}
+
+		// if all devices have finished the multicast class-c session setup, publish to done chan.
+		done := true
+		for _, state := range d.deviceState {
+			// ignore devices that have not setup the fragmentation session
+			if !state.getFragmentationSessionSetup() {
+				continue
+			}
+
+			if !state.getMulticastSessionSetup() {
+				done = false
+			}
+		}
+		if done {
+			d.multicastSessionSetupDone <- struct{}{}
 		}
 	}
 
@@ -965,6 +1035,116 @@ devLoop:
 func (d *Deployment) stepMulticastClassBSessionSetup(ctx context.Context) error {
 	if d.opts.MulticastGroupType != api.MulticastGroupType_CLASS_B {
 		return nil
+	}
+
+	log.WithField("deployment_id", d.GetID()).Info("fuota: starting multicast class-b session setup for devices")
+
+	attempt := 0
+
+devLoop:
+	for {
+		attempt += 1
+		if attempt > d.opts.UnicastAttemptCount {
+			log.WithField("deployment_id", d.GetID()).Warning("fuota: multicast class-b session setup reached max. number of attempts, some devices did not complete")
+			break
+		}
+
+		d.sessionStartTime = time.Now().Add(d.opts.UnicastTimeout)
+		d.sessionEndTime = d.sessionStartTime.Add(time.Duration(1<<d.opts.MulticastTimeout) * time.Second)
+
+		for devEUI := range d.opts.Devices {
+			// ignore devices that have not setup the fragmentation session
+			if !d.deviceState[devEUI].getFragmentationSessionSetup() {
+				continue
+			}
+
+			if d.deviceState[devEUI].getMulticastSessionSetup() {
+				continue
+			}
+
+			log.WithFields(log.Fields{
+				"deployment_id": d.GetID(),
+				"dev_eui":       devEUI,
+				"attempt":       attempt,
+			}).Info("fuota: initiate multicast class-b session setup for device")
+
+			sessionTime := uint32((gps.Time(d.sessionStartTime).TimeSinceGPSEpoch() / time.Second) % (1 << 32))
+
+			cmd := multicastsetup.Command{
+				CID: multicastsetup.McClassBSessionReq,
+				Payload: &multicastsetup.McClassBSessionReqPayload{
+					McGroupIDHeader: multicastsetup.McClassBSessionReqPayloadMcGroupIDHeader{
+						McGroupID: d.opts.MulticastGroupID,
+					},
+					SessionTime: sessionTime,
+					TimeOutPeriodicity: multicastsetup.McClassBSessionReqPayloadTimeOutPeriodicity{
+						Periodicity: d.opts.MulticastPingSlotPeriod,
+						TimeOut:     d.opts.MulticastTimeout,
+					},
+					DLFrequency: d.opts.MulticastFrequency,
+					DR:          d.opts.MulticastDR,
+				},
+			}
+
+			b, err := cmd.MarshalBinary()
+			if err != nil {
+				return fmt.Errorf("marshal binary error: %w", err)
+			}
+
+			_, err = as.DeviceQueueClient().Enqueue(ctx, &api.EnqueueDeviceQueueItemRequest{
+				DeviceQueueItem: &api.DeviceQueueItem{
+					DevEui: devEUI.String(),
+					FPort:  uint32(multicastsetup.DefaultFPort),
+					Data:   b,
+				},
+			})
+			if err != nil {
+				log.WithError(err).WithFields(log.Fields{
+					"deployment_id": d.GetID(),
+					"dev_eui":       devEUI,
+				}).Error("fuota: enqueue payload error")
+				continue
+			}
+
+			dl := storage.DeploymentLog{
+				DeploymentID: d.GetID(),
+				DevEUI:       devEUI,
+				FPort:        uint8(multicastsetup.DefaultFPort),
+				Command:      "McClassBSessionReq",
+				Fields: hstore.Hstore{
+					Map: map[string]sql.NullString{
+						"mc_group_id":         sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastGroupID)},
+						"session_time":        sql.NullString{Valid: true, String: fmt.Sprintf("%d", sessionTime)},
+						"session_periodicity": sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastPingSlotPeriod)},
+						"session_time_out":    sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastTimeout)},
+						"dl_frequency":        sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastFrequency)},
+						"dr":                  sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastDR)},
+					},
+				},
+			}
+			if err := storage.CreateDeploymentLog(ctx, storage.DB(), &dl); err != nil {
+				log.WithError(err).Error("fuota: create deployment log error")
+			}
+		}
+
+		select {
+		// sleep until next retry
+		case <-time.After(d.opts.UnicastTimeout):
+			continue devLoop
+		case <-d.multicastSessionSetupDone:
+			log.WithField("deployment_id", d.GetID()).Info("fuota: multicast class-b session setup completed successful for all devices")
+			break devLoop
+		}
+	}
+
+	sd, err := storage.GetDeployment(ctx, storage.DB(), d.GetID())
+	if err != nil {
+		return fmt.Errorf("get deployment error: %w", err)
+	}
+	now := time.Now()
+	sd.MCSessionCompletedAt = &now
+	if err := storage.UpdateDeployment(ctx, storage.DB(), &sd); err != nil {
+		return fmt.Errorf("update deployment error: %w", err)
 	}
 
 	return nil
