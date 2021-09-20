@@ -89,8 +89,9 @@ type DeploymentOptions struct {
 	// Multicast DR defines the multicast data-rate.
 	MulticastDR uint8
 
-	// MulticastPingSlotPeriod defines the ping-slot period (Class-B).
-	MulticastPingSlotPeriod uint8
+	// MulticastPingSlotPeriodicity defines the ping-slot periodicity (Class-B).
+	// Expected values: 0 -7.
+	MulticastPingSlotPeriodicity uint8
 
 	// MulticastFrequency defines the frequency.
 	MulticastFrequency uint32
@@ -725,7 +726,7 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 		GroupType:      d.opts.MulticastGroupType,
 		Dr:             uint32(d.opts.MulticastDR),
 		Frequency:      d.opts.MulticastFrequency,
-		PingSlotPeriod: uint32(d.opts.MulticastPingSlotPeriod),
+		PingSlotPeriod: uint32(1 << int(5+d.opts.MulticastPingSlotPeriodicity)), // note: period = 2 ^ (5 + periodicity)
 		ApplicationId:  d.opts.ApplicationID,
 	}
 
@@ -1078,7 +1079,7 @@ devLoop:
 					},
 					SessionTime: sessionTime,
 					TimeOutPeriodicity: multicastsetup.McClassBSessionReqPayloadTimeOutPeriodicity{
-						Periodicity: d.opts.MulticastPingSlotPeriod,
+						Periodicity: d.opts.MulticastPingSlotPeriodicity,
 						TimeOut:     d.opts.MulticastTimeout,
 					},
 					DLFrequency: d.opts.MulticastFrequency,
@@ -1115,7 +1116,7 @@ devLoop:
 					Map: map[string]sql.NullString{
 						"mc_group_id":         sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastGroupID)},
 						"session_time":        sql.NullString{Valid: true, String: fmt.Sprintf("%d", sessionTime)},
-						"session_periodicity": sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastPingSlotPeriod)},
+						"session_periodicity": sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastPingSlotPeriodicity)},
 						"session_time_out":    sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastTimeout)},
 						"dl_frequency":        sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastFrequency)},
 						"dr":                  sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.MulticastDR)},
