@@ -151,6 +151,9 @@ func (a *FUOTAServerAPI) GetDeploymentStatus(ctx context.Context, req *fapi.GetD
 		var dd fapi.DeploymentDeviceStatus
 		var err error
 
+		dd.DevEui = make([]byte, len(device.DevEUI))
+		copy(dd.DevEui, device.DevEUI[:])
+
 		dd.CreatedAt, err = ptypes.TimestampProto(device.CreatedAt)
 		if err != nil {
 			return nil, err
