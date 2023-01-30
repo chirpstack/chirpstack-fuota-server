@@ -7,7 +7,7 @@ import (
 	"reflect"
 	"strings"
 
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
 	"github.com/mitchellh/mapstructure"
 	log "github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"

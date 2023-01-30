@@ -4,7 +4,7 @@ import (
 	"os"
 	"text/template"
 
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
 	"github.com/pkg/errors"
 	"github.com/spf13/cobra"
 )

@@ -14,9 +14,9 @@ import (
 	"github.com/golang/protobuf/proto"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/integration"
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
 	"github.com/brocaar/lorawan/applayer/clocksync"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
+	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )
 
 var handler *Handler
@@ -129,7 +129,7 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	log.WithFields(log.Fields{
 		"event":   event,
-		"dev_eui": hex.EncodeToString(uplinkEvent.DevEui),
+		"dev_eui": uplinkEvent.GetDeviceInfo().GetDevEui(),
 		"f_cnt":   uplinkEvent.FCnt,
 		"f_port":  uplinkEvent.FPort,
 		"data":    hex.EncodeToString(uplinkEvent.Data),

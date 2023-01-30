@@ -12,8 +12,8 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 
-	"github.com/brocaar/chirpstack-api/go/v3/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	fuota "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
 )
 
 func Setup(conf *config.Config) error {
@@ -39,7 +39,7 @@ func Setup(conf *config.Config) error {
 
 	gs := grpc.NewServer(opts...)
 	fuotaAPI := NewFUOTAServerAPI()
-	fuota.RegisterFUOTAServerServiceServer(gs, fuotaAPI)
+	fuota.RegisterFuotaServerServiceServer(gs, fuotaAPI)
 
 	ln, err := net.Listen("tcp", apiConf.Bind)
 	if err != nil {

@@ -3,7 +3,7 @@ package test
 import (
 	"os"
 
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
 	log "github.com/sirupsen/logrus"
 )
 

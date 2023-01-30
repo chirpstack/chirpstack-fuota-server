@@ -1,0 +1,8 @@
+services:
+  chirpstack-fuota-server-api-go:
+    build:
+      context: .
+      dockerfile: Dockerfile-go
+    command: bash -c "cd api/go && make all"
+    volumes:
+      - ../:/chirpstack-fuota-server

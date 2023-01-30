@@ -8,17 +8,19 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/external/api"
-	"github.com/brocaar/chirpstack-api/go/v3/as/integration"
-	"github.com/brocaar/chirpstack-fuota-server/internal/client/as"
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/clocksync"
 	"github.com/brocaar/lorawan/gps"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/client/as"
+	"github.com/chirpstack/chirpstack/api/go/v4/api"
+	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )
 
 func handleClockSyncCommand(ctx context.Context, pl integration.UplinkEvent) error {
 	var devEUI lorawan.EUI64
-	copy(devEUI[:], pl.DevEui)
+	if err := devEUI.UnmarshalText([]byte(pl.GetDeviceInfo().GetDevEui())); err != nil {
+		return err
+	}
 
 	// get uplink time
 	var timeSinceGPSEpoch time.Duration
@@ -98,8 +100,8 @@ func handleClockSyncAppTimeReq(ctx context.Context, devEUI lorawan.EUI64, timeSi
 	}
 
 	// enqueue response
-	_, err = as.DeviceQueueClient().Enqueue(ctx, &api.EnqueueDeviceQueueItemRequest{
-		DeviceQueueItem: &api.DeviceQueueItem{
+	_, err = as.DeviceClient().Enqueue(ctx, &api.EnqueueDeviceQueueItemRequest{
+		QueueItem: &api.DeviceQueueItem{
 			DevEui: devEUI.String(),
 			FPort:  uint32(clocksync.DefaultFPort),
 			Data:   b,

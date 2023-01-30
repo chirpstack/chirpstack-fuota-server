@@ -7,15 +7,17 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/external/api"
-	fapi "github.com/brocaar/chirpstack-api/go/v3/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/fuota"
-	"github.com/brocaar/chirpstack-fuota-server/internal/storage"
 	"github.com/brocaar/lorawan"
+	fapi "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/fuota"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/storage"
+	"github.com/chirpstack/chirpstack/api/go/v4/api"
 )
 
 // FUOTAServerAPI implements the FUOTA server API.
-type FUOTAServerAPI struct{}
+type FUOTAServerAPI struct {
+	fapi.UnimplementedFuotaServerServiceServer
+}
 
 // NewFUOTAServerAPI creates a new FUOTAServerAPI.
 func NewFUOTAServerAPI() *FUOTAServerAPI {

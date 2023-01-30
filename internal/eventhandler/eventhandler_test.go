@@ -12,12 +12,12 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"github.com/stretchr/testify/require"
 
-	"github.com/brocaar/chirpstack-api/go/v3/as/external/api"
-	"github.com/brocaar/chirpstack-api/go/v3/as/integration"
-	"github.com/brocaar/chirpstack-api/go/v3/gw"
-	"github.com/brocaar/chirpstack-fuota-server/internal/client/as"
-	"github.com/brocaar/chirpstack-fuota-server/internal/test"
 	"github.com/brocaar/lorawan/applayer/clocksync"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/client/as"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/test"
+	"github.com/chirpstack/chirpstack/api/go/v4/api"
+	"github.com/chirpstack/chirpstack/api/go/v4/gw"
+	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )
 
 func TestEventHandler(t *testing.T) {
@@ -37,8 +37,8 @@ func TestEventHandler(t *testing.T) {
 		ctrl := gomock.NewController(t)
 		defer ctrl.Finish()
 
-		mock := test.NewMockDeviceQueueServiceClient(ctrl)
-		as.SetDeviceQueueClient(mock)
+		mock := test.NewMockDeviceServiceClient(ctrl)
+		as.SetDeviceClient(mock)
 
 		cmdAns := clocksync.Command{
 			CID: clocksync.AppTimeAns,
@@ -55,7 +55,7 @@ func TestEventHandler(t *testing.T) {
 		mock.EXPECT().Enqueue(
 			gomock.Any(),
 			gomock.Eq(&api.EnqueueDeviceQueueItemRequest{
-				DeviceQueueItem: &api.DeviceQueueItem{
+				QueueItem: &api.DeviceQueueItem{
 					DevEui: "0102030405060708",
 					FPort:  202,
 					Data:   cmdAnsB,
@@ -76,10 +76,12 @@ func TestEventHandler(t *testing.T) {
 		assert.NoError(err)
 
 		uplink := integration.UplinkEvent{
-			DevEui: []byte{1, 2, 3, 4, 5, 6, 7, 8},
-			Data:   cmdB,
-			FPort:  uint32(clocksync.DefaultFPort),
-			RxInfo: []*gw.UplinkRXInfo{
+			DeviceInfo: &integration.DeviceInfo{
+				DevEui: "0102030405060708",
+			},
+			Data:  cmdB,
+			FPort: uint32(clocksync.DefaultFPort),
+			RxInfo: []*gw.UplinkRxInfo{
 				{
 					TimeSinceGpsEpoch: ptypes.DurationProto(time.Second * 210),
 				},

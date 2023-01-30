@@ -1,3 +1,4 @@
+//go:build windows
 // +build windows
 
 package cmd
@@ -5,7 +6,7 @@ package cmd
 import (
 	log "github.com/sirupsen/logrus"
 
-	"github.com/brocaar/chirpstack-fuota-server/internal/config"
+	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/config"
 )
 
 func setSyslog() error {

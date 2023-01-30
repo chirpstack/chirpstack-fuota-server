@@ -10,9 +10,9 @@ import (
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc"
 
-	"github.com/brocaar/chirpstack-api/go/v3/fuota"
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/multicastsetup"
+	fuota "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
 )
 
 func main() {
@@ -31,11 +31,11 @@ func main() {
 		panic(err)
 	}
 
-	client := fuota.NewFUOTAServerServiceClient(conn)
+	client := fuota.NewFuotaServerServiceClient(conn)
 
 	resp, err := client.CreateDeployment(context.Background(), &fuota.CreateDeploymentRequest{
 		Deployment: &fuota.Deployment{
-			ApplicationId: 106,
+			ApplicationId: "d9fde0d5-bcaf-4e42-8d27-417f11628905",
 			Devices: []*fuota.DeploymentDevice{
 				{
 					DevEui:    []byte{9, 0, 0, 0, 0, 0, 0, 0},

@@ -1,4 +1,4 @@
-.PHONY: build clean generate statics test snapshot dist dev-requirements
+.PHONY: build clean generate statics test snapshot dist dev-requirements api
 
 build:
 	@echo "Compiling source"
@@ -38,3 +38,6 @@ dev-requirements:
 	go install github.com/goreleaser/goreleaser
 	go install github.com/goreleaser/nfpm
 	go install github.com/golang/mock/mockgen
+
+api:
+	cd api && make
