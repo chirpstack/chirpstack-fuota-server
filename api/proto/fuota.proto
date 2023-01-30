@@ -49,10 +49,10 @@ enum RequestFragmentationSessionStatus {
 
 message DeploymentDevice {
     // DevEUI.
-    bytes dev_eui = 1;
+    string dev_eui = 1;
 
     // McRootKey.
-    bytes mc_root_key = 2;
+    string mc_root_key = 2;
 }
 
 
@@ -132,17 +132,17 @@ message CreateDeploymentRequest {
 
 message CreateDeploymentResponse {
     // ID of the created deployment.
-    bytes id = 1;
+    string id = 1;
 }
 
 message GetDeploymentStatusRequest {
     // Deployment ID.
-    bytes id = 1;
+    string id = 1;
 }
 
 message DeploymentDeviceStatus {
     // DevEUI.
-    bytes dev_eui = 1;
+    string dev_eui = 1;
 
     // Created at.
     google.protobuf.Timestamp created_at = 2;
@@ -191,10 +191,10 @@ message GetDeploymentStatusResponse {
 
 message GetDeploymentDeviceLogsRequest {
     // Deployment ID.
-    bytes deployment_id = 1;
+    string deployment_id = 1;
 
     // DevEUI.
-    bytes dev_eui = 2;
+    string dev_eui = 2;
 }
 
 message DeploymentDeviceLog {

@@ -45,10 +45,14 @@ func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateD
 
 	for _, d := range req.GetDeployment().Devices {
 		var devEUI lorawan.EUI64
-		var mcRootKey lorawan.AES128Key
+		if err := devEUI.UnmarshalText([]byte(d.DevEui)); err != nil {
+			return nil, err
+		}
 
-		copy(devEUI[:], d.DevEui)
-		copy(mcRootKey[:], d.McRootKey)
+		var mcRootKey lorawan.AES128Key
+		if err := mcRootKey.UnmarshalText([]byte(d.McRootKey)); err != nil {
+			return nil, err
+		}
 
 		opts.Devices[devEUI] = fuota.DeviceOptions{
 			McRootKey: mcRootKey,
@@ -83,14 +87,16 @@ func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateD
 	}(depl)
 
 	return &fapi.CreateDeploymentResponse{
-		Id: depl.GetID().Bytes(),
+		Id: depl.GetID().String(),
 	}, nil
 }
 
 // GetDeploymentStatus returns the FUOTA deployment status given an ID.
 func (a *FUOTAServerAPI) GetDeploymentStatus(ctx context.Context, req *fapi.GetDeploymentStatusRequest) (*fapi.GetDeploymentStatusResponse, error) {
-	var id uuid.UUID
-	copy(id[:], req.GetId())
+	id, err := uuid.FromString(req.GetId())
+	if err != nil {
+		return nil, err
+	}
 
 	d, err := storage.GetDeployment(ctx, storage.DB(), id)
 	if err != nil {
@@ -150,7 +156,9 @@ func (a *FUOTAServerAPI) GetDeploymentStatus(ctx context.Context, req *fapi.GetD
 	}
 
 	for _, device := range devices {
-		var dd fapi.DeploymentDeviceStatus
+		dd := fapi.DeploymentDeviceStatus{
+			DevEui: device.DevEUI.String(),
+		}
 		var err error
 
 		dd.CreatedAt, err = ptypes.TimestampProto(device.CreatedAt)
@@ -199,12 +207,17 @@ func (a *FUOTAServerAPI) GetDeploymentStatus(ctx context.Context, req *fapi.GetD
 
 // GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and DevEUI.
 func (a *FUOTAServerAPI) GetDeploymentDeviceLogs(ctx context.Context, req *fapi.GetDeploymentDeviceLogsRequest) (*fapi.GetDeploymentDeviceLogsResponse, error) {
-	var deploymentID uuid.UUID
 	var devEUI lorawan.EUI64
 	var resp fapi.GetDeploymentDeviceLogsResponse
 
-	copy(deploymentID[:], req.GetDeploymentId())
-	copy(devEUI[:], req.GetDevEui())
+	deploymentID, err := uuid.FromString(req.GetDeploymentId())
+	if err != nil {
+		return nil, err
+	}
+
+	if err := devEUI.UnmarshalText([]byte(req.GetDevEui())); err != nil {
+		return nil, err
+	}
 
 	logs, err := storage.GetDeploymentLogsForDevice(ctx, storage.DB(), deploymentID, devEUI)
 	if err != nil {

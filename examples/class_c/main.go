@@ -38,8 +38,8 @@ func main() {
 			ApplicationId: "d9fde0d5-bcaf-4e42-8d27-417f11628905",
 			Devices: []*fuota.DeploymentDevice{
 				{
-					DevEui:    []byte{9, 0, 0, 0, 0, 0, 0, 0},
-					McRootKey: mcRootKey[:],
+					DevEui:    "090000000000000000",
+					McRootKey: mcRootKey.String(),
 				},
 			},
 			MulticastGroupType:                fuota.MulticastGroupType_CLASS_C,
