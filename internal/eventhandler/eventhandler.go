@@ -35,13 +35,13 @@ func Setup(c *config.Config) error {
 	log.Info("eventhandler: setup application-server event-handler")
 
 	opts := HandlerOptions{}
-	switch c.ApplicationServer.EventHandler.Marshaler {
+	switch c.ChirpStack.EventHandler.Marshaler {
 	case "json":
 		opts.JSON = true
 	case "protobuf":
 		opts.JSON = false
 	default:
-		return fmt.Errorf("invalid marshaler option: %s", c.ApplicationServer.EventHandler.Marshaler)
+		return fmt.Errorf("invalid marshaler option: %s", c.ChirpStack.EventHandler.Marshaler)
 	}
 
 	h, err := NewHandler(opts)
@@ -52,13 +52,13 @@ func Setup(c *config.Config) error {
 	handler = h
 	server := http.Server{
 		Handler: handler,
-		Addr:    c.ApplicationServer.EventHandler.HTTP.Bind,
+		Addr:    c.ChirpStack.EventHandler.HTTP.Bind,
 	}
 
 	go func() {
 		log.WithFields(log.Fields{
-			"bind":      c.ApplicationServer.EventHandler.HTTP.Bind,
-			"marshaler": c.ApplicationServer.EventHandler.Marshaler,
+			"bind":      c.ChirpStack.EventHandler.HTTP.Bind,
+			"marshaler": c.ChirpStack.EventHandler.Marshaler,
 		}).Info("integration/eventhandler: starting event-handler server")
 		err := server.ListenAndServe()
 		log.WithError(err).Error("eventhandler: start event-handler server error")

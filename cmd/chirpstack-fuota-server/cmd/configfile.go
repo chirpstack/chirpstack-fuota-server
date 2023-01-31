@@ -83,36 +83,36 @@ const configTemplate = `[general]
   max_idle_connections={{ .PostgreSQL.MaxIdleConnections }}
 
 
-# Application Server (integration) settings.
-[application_server]
+# ChirpStack (integration) settings.
+[chirpstack]
 
   # Event handler integration settings.
-  [application_server.event_handler]
+  [chirpstack.event_handler]
 
     # Payload marshaler.
     #
     # This defines how the HTTP payloads are encoded. Valid options are:
     # * protobuf:  Protobuf encoding
     # * json:      JSON encoding (easier for debugging, but less compact than 'protobuf')
-    marshaler="{{ .ApplicationServer.EventHandler.Marshaler }}"
+    marshaler="{{ .ChirpStack.EventHandler.Marshaler }}"
 
     # HTTP handler settings.
-    [application_server.event_handler.http]
+    [chirpstack.event_handler.http]
 
       # IP:Port to bind the event handler server to.
-      bind="{{ .ApplicationServer.EventHandler.HTTP.Bind }}"
+      bind="{{ .ChirpStack.EventHandler.HTTP.Bind }}"
 
   # API integration settings.
-  [application_server.api]
+  [chirpstack.api]
 
-    # ChirpStack Application Server API server endpoint.
-    server="{{ .ApplicationServer.API.Server }}"
+    # ChirpStack API server endpoint.
+    server="{{ .ChirpStack.API.Server }}"
 
     # API token.
-    token=".ApplicationServer.API.Token"
+    token=".ChirpStack.API.Token"
 
     # Endpoint uses TLS.
-    tls_enabled={{ .ApplicationServer.API.TLSEnabled }}
+    tls_enabled={{ .ChirpStack.API.TLSEnabled }}
 
 
 # FUOTA server settings.

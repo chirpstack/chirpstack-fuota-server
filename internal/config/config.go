@@ -18,7 +18,7 @@ type Config struct {
 		MaxIdleConnections int    `mapstructure:"max_idle_connections"`
 	} `mapstructure:"postgresql"`
 
-	ApplicationServer struct {
+	ChirpStack struct {
 		EventHandler struct {
 			Marshaler string `mapstructure:"marshaler"`
 			HTTP      struct {
@@ -31,7 +31,7 @@ type Config struct {
 			Token      string `mapstructure:"token"`
 			TLSEnabled bool   `mapstructure:"tls_enabled"`
 		} `mapstructure:"api"`
-	} `mapstructure:"application_server"`
+	} `mapstructure:"chirpstack"`
 
 	FUOTAServer struct {
 		API struct {

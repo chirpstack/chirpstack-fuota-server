@@ -1,10 +1,10 @@
 # ChirpStack FUOTA Server
 
 ChirpStack FUOTA Server is an open-source FUOTA server implementation for
-LoRaWAN. It integrates with the [ChirpStack Application Server](https://www.chirpstack.io/application-server/)
+LoRaWAN(R). It integrates with the [ChirpStack](https://www.chirpstack.io/)
 using the HTTP integration (for receiving uplink payloads) and uses the
-ChirpStack Application Server API for creating the multicast-groups and
-enqueueing the downlink payloads.
+ChirpStack gRCP API for creating the multicast-groups and enqueueing the
+downlink payloads.
 
 ## Building from source
 
@@ -36,8 +36,8 @@ make snapshot
 
 The ChirpStack FUOTA Server provides a [gRPC](https://grpc.io/) API interface
 for scheduling the FUOTA deployments to one or multiple devices under a
-ChirpStack Application Server application ID. This API is defined by the
-gRPC [FUOTAServerService](https://github.com/brocaar/chirpstack-api/blob/master/protobuf/fuota/fuota.proto).
+ChirpStack application ID. This API is defined by the
+gRPC [FuotaServerService](https://github.com/chirpstack/chirpstack-fuota-server/blob/master/api/proto/fuota.proto).
 
 ## Setup
 
@@ -73,17 +73,17 @@ create extension hstore;
 
 ### Create API key
 
-The ChirpStack FUOTA Server needs a ChirpStack Application Server API in order
-authenticate with the ChirpStack Application Server. You can generate this key
-within the ChirpStack Application Server web-interface. This key must be
-configured in the `chirpstack-fuota-server.toml` configuration file.
+The ChirpStack FUOTA Server needs a ChirpStack API key in order authenticate
+with the ChirpStack API. You can generate this key within the ChirpStack
+web-interface. This key must be configured in the `chirpstack-fuota-server.toml`
+configuration file.
 
 ### HTTP integration
 
-Within the ChirpStack Application Server, you must also setup a HTTP integration
-for the application(s) you want to use with the ChirpStack FUOTA Server. Make
-sure that this matches with the host / IP and port the ChirpStack FUOTA Server
-event handler is binding to. As well make sure that the marshaler matches.
+Within ChirpStack, you must also setup a HTTP integration for the application(s)
+you want to use with the ChirpStack FUOTA Server. Make sure that this matches
+with the host / IP and port the ChirpStack FUOTA Server event handler is binding
+to. As well make sure that the marshaler matches.
 
 ## Usage and configuration file
 
@@ -121,4 +121,4 @@ that can be found at the [LoRa Alliance Resource Hub](https://lora-alliance.org/
 ## License
 
 ChirpStack FUOTA Server is distributed under the MIT license. See also
-[LICENSE](https://github.com/brocaar/chirpstack-fuota-server/blob/master/LICENSE).
+[LICENSE](https://github.com/chirpstack/chirpstack-fuota-server/blob/master/LICENSE).

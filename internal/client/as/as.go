@@ -44,20 +44,20 @@ func Setup(conf *config.Config) error {
 
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),
-		grpc.WithPerRPCCredentials(APIToken(conf.ApplicationServer.API.Token)),
+		grpc.WithPerRPCCredentials(APIToken(conf.ChirpStack.API.Token)),
 		grpc.WithUnaryInterceptor(
 			grpc_logrus.UnaryClientInterceptor(logrusEntry, logrusOpts...),
 		),
 	}
 
-	if !conf.ApplicationServer.API.TLSEnabled {
+	if !conf.ChirpStack.API.TLSEnabled {
 		opts = append(opts, grpc.WithInsecure())
 	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	client, err := grpc.DialContext(ctx, conf.ApplicationServer.API.Server, opts...)
+	client, err := grpc.DialContext(ctx, conf.ChirpStack.API.Server, opts...)
 	if err != nil {
 		return fmt.Errorf("dial application-server api error: %w", err)
 	}
