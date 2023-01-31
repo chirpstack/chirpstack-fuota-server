@@ -13,3 +13,4 @@ coverage.out
 # builds
 /dist
 /build
+/examples/class_c/class_c
