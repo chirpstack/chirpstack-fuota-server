@@ -6,6 +6,10 @@ using the HTTP integration (for receiving uplink payloads) and uses the
 ChirpStack gRCP API for creating the multicast-groups and enqueueing the
 downlink payloads.
 
+**Note:** This version is compatible with ChirpStack v4, for v3, please refer
+to the [v3 branch](https://github.com/brocaar/chirpstack-fuota-server/tree/v3)
+of this repository.
+
 ## Building from source
 
 The following commands explain how to compile the source-code using the
