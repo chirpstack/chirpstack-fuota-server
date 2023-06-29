@@ -23,6 +23,7 @@ import (
 	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/eventhandler"
 	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/storage"
 	"github.com/chirpstack/chirpstack/api/go/v4/api"
+	"github.com/chirpstack/chirpstack/api/go/v4/common"
 	"github.com/chirpstack/chirpstack/api/go/v4/integration"
 )
 
@@ -103,6 +104,9 @@ type DeploymentOptions struct {
 	// Please refer to the Remote Multicast Setup specification as this field
 	// has a different meaning for Class-B and Class-C groups.
 	MulticastTimeout uint8
+
+	// MulticastRegion defines the multicast region.
+	MulticastRegion common.Region
 
 	// UnicastTimeout.
 	// Set this to the value in which you at least expect an uplink frame from
@@ -730,6 +734,7 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 		Frequency:            d.opts.MulticastFrequency,
 		ClassBPingSlotPeriod: uint32(1 << int(5+d.opts.MulticastPingSlotPeriodicity)), // note: period = 2 ^ (5 + periodicity)
 		ApplicationId:        d.opts.ApplicationID,
+		Region:               d.opts.MulticastRegion,
 	}
 
 	resp, err := as.MulticastGroupClient().Create(ctx, &api.CreateMulticastGroupRequest{

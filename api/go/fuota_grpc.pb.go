@@ -26,7 +26,8 @@ type FuotaServerServiceClient interface {
 	CreateDeployment(ctx context.Context, in *CreateDeploymentRequest, opts ...grpc.CallOption) (*CreateDeploymentResponse, error)
 	// GetDeploymentStatus returns the FUOTA deployment status given an ID.
 	GetDeploymentStatus(ctx context.Context, in *GetDeploymentStatusRequest, opts ...grpc.CallOption) (*GetDeploymentStatusResponse, error)
-	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and DevEUI.
+	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and
+	// DevEUI.
 	GetDeploymentDeviceLogs(ctx context.Context, in *GetDeploymentDeviceLogsRequest, opts ...grpc.CallOption) (*GetDeploymentDeviceLogsResponse, error)
 }
 
@@ -73,7 +74,8 @@ type FuotaServerServiceServer interface {
 	CreateDeployment(context.Context, *CreateDeploymentRequest) (*CreateDeploymentResponse, error)
 	// GetDeploymentStatus returns the FUOTA deployment status given an ID.
 	GetDeploymentStatus(context.Context, *GetDeploymentStatusRequest) (*GetDeploymentStatusResponse, error)
-	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and DevEUI.
+	// GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and
+	// DevEUI.
 	GetDeploymentDeviceLogs(context.Context, *GetDeploymentDeviceLogsRequest) (*GetDeploymentDeviceLogsResponse, error)
 	mustEmbedUnimplementedFuotaServerServiceServer()
 }

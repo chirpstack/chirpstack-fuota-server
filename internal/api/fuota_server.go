@@ -12,6 +12,7 @@ import (
 	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/fuota"
 	"github.com/chirpstack/chirpstack-fuota-server/v4/internal/storage"
 	"github.com/chirpstack/chirpstack/api/go/v4/api"
+	"github.com/chirpstack/chirpstack/api/go/v4/common"
 )
 
 // FUOTAServerAPI implements the FUOTA server API.
@@ -33,6 +34,7 @@ func (a *FUOTAServerAPI) CreateDeployment(ctx context.Context, req *fapi.CreateD
 		MulticastFrequency:                req.GetDeployment().MulticastFrequency,
 		MulticastGroupID:                  uint8(req.GetDeployment().MulticastGroupId),
 		MulticastTimeout:                  uint8(req.GetDeployment().MulticastTimeout),
+		MulticastRegion:                   common.Region(req.GetDeployment().MulticastRegion),
 		FragSize:                          int(req.GetDeployment().FragmentationFragmentSize),
 		Payload:                           req.GetDeployment().Payload,
 		Redundancy:                        int(req.GetDeployment().FragmentationRedundancy),

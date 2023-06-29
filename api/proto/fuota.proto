@@ -7,210 +7,260 @@ option go_package = "github.com/chirpstack/chirpstack-fuota-server/v4/api/go";
 import "google/protobuf/timestamp.proto";
 import "google/protobuf/duration.proto";
 
+// Multicast region.
+// Source:
+// https://github.com/chirpstack/chirpstack/blob/master/api/proto/common/common.proto#L24.
+enum Region {
+  // EU868
+  EU868 = 0;
+
+  // US915
+  US915 = 2;
+
+  // CN779
+  CN779 = 3;
+
+  // EU433
+  EU433 = 4;
+
+  // AU915
+  AU915 = 5;
+
+  // CN470
+  CN470 = 6;
+
+  // AS923
+  AS923 = 7;
+
+  // AS923 with -1.80 MHz frequency offset
+  AS923_2 = 12;
+
+  // AS923 with -6.60 MHz frequency offset
+  AS923_3 = 13;
+
+  // (AS923 with -5.90 MHz frequency offset).
+  AS923_4 = 14;
+
+  // KR920
+  KR920 = 8;
+
+  // IN865
+  IN865 = 9;
+
+  // RU864
+  RU864 = 10;
+
+  // ISM2400 (LoRaWAN 2.4 GHz)
+  ISM2400 = 11;
+}
 
 // FUOTAServerService provides the fuota-server API methods.
 // Note: this API considered experimental.
 service FuotaServerService {
-    // CreateDeployment creates the given FUOTA deployment.
-    rpc CreateDeployment(CreateDeploymentRequest) returns (CreateDeploymentResponse) {}
+  // CreateDeployment creates the given FUOTA deployment.
+  rpc CreateDeployment(CreateDeploymentRequest)
+      returns (CreateDeploymentResponse) {}
 
-    // GetDeploymentStatus returns the FUOTA deployment status given an ID.
-    rpc GetDeploymentStatus(GetDeploymentStatusRequest) returns (GetDeploymentStatusResponse) {}
+  // GetDeploymentStatus returns the FUOTA deployment status given an ID.
+  rpc GetDeploymentStatus(GetDeploymentStatusRequest)
+      returns (GetDeploymentStatusResponse) {}
 
-    // GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and DevEUI.
-    rpc GetDeploymentDeviceLogs(GetDeploymentDeviceLogsRequest) returns (GetDeploymentDeviceLogsResponse) {}
+  // GetDeploymentDeviceLogs returns the FUOTA logs given a deployment ID and
+  // DevEUI.
+  rpc GetDeploymentDeviceLogs(GetDeploymentDeviceLogsRequest)
+      returns (GetDeploymentDeviceLogsResponse) {}
 }
 
-
 enum MulticastGroupType {
-    // Class-B.
-    CLASS_B = 0;
+  // Class-B.
+  CLASS_B = 0;
 
-    // Class-C.
-    CLASS_C = 1;
+  // Class-C.
+  CLASS_C = 1;
 }
 
 enum RequestFragmentationSessionStatus {
-    // Enqueue the fragmentation-session status request command directly after
-    // enqueueing the fragmentation-session fragments. This is the recommended
-    // option for Class-A devices as the status request will stay in the
-    // downlink queue until the device sends its next uplink.
-    AFTER_FRAGMENT_ENQUEUE = 0;
+  // Enqueue the fragmentation-session status request command directly after
+  // enqueueing the fragmentation-session fragments. This is the recommended
+  // option for Class-A devices as the status request will stay in the
+  // downlink queue until the device sends its next uplink.
+  AFTER_FRAGMENT_ENQUEUE = 0;
 
-    // Enqueue the fragmentation-session status request after the multicast
-    // session-timeout. This is the recommended option for Class-B and -C
-    // devices as selecting AFTER_FRAGMENT_ENQUEUE will likely cause the NS
-    // to schedule the downlink frame during the FUOTA multicast-session.
-    AFTER_SESSION_TIMEOUT = 1;
+  // Enqueue the fragmentation-session status request after the multicast
+  // session-timeout. This is the recommended option for Class-B and -C
+  // devices as selecting AFTER_FRAGMENT_ENQUEUE will likely cause the NS
+  // to schedule the downlink frame during the FUOTA multicast-session.
+  AFTER_SESSION_TIMEOUT = 1;
 
-    // Do not request the fragmentation-session status.
-    NO_REQUEST = 2;
+  // Do not request the fragmentation-session status.
+  NO_REQUEST = 2;
 }
 
 message DeploymentDevice {
-    // DevEUI.
-    string dev_eui = 1;
+  // DevEUI.
+  string dev_eui = 1;
 
-    // McRootKey.
-    string mc_root_key = 2;
+  // McRootKey.
+  string mc_root_key = 2;
 }
-
 
 message Deployment {
-    // Application ID (UUID string).
-    string application_id = 1;
+  // Application ID (UUID string).
+  string application_id = 1;
 
-    // Devices to include in this deployment.
-    repeated DeploymentDevice devices = 2;
+  // Devices to include in this deployment.
+  repeated DeploymentDevice devices = 2;
 
-    // Multicast-group type.
-    MulticastGroupType multicast_group_type = 3;
+  // Multicast-group type.
+  MulticastGroupType multicast_group_type = 3;
 
-    // Multicast data-rate.
-    uint32 multicast_dr = 4;
+  // Multicast data-rate.
+  uint32 multicast_dr = 4;
 
-    // Multicast ping-slot period (Class-B only).
-    uint32 multicast_ping_slot_period = 5;
+  // Multicast ping-slot period (Class-B only).
+  uint32 multicast_ping_slot_period = 5;
 
-    // Multicast frequency (Hz).
-    uint32 multicast_frequency = 6;
+  // Multicast frequency (Hz).
+  uint32 multicast_frequency = 6;
 
-    // Multicast group ID.
-    uint32 multicast_group_id = 7;
+  // Multicast group ID.
+  uint32 multicast_group_id = 7;
 
-    // Multicast timeout.
-	// This defines the timeout of the multicast-session.
-	// Please refer to the Remote Multicast Setup specification as this field
-	// has a different meaning for Class-B and Class-C groups.
-    uint32 multicast_timeout = 8;
+  // Multicast timeout.
+  // This defines the timeout of the multicast-session.
+  // Please refer to the Remote Multicast Setup specification as this field
+  // has a different meaning for Class-B and Class-C groups.
+  uint32 multicast_timeout = 8;
 
-    // Unicast timeout.
-	// Set this to the value in which you at least expect an uplink frame from
-	// the device. The FUOTA server will wait for the given time before
-	// attempting a retry or continuing with the next step.
-    google.protobuf.Duration unicast_timeout = 9;
+  // Multicast region.
+  Region multicast_region = 19;
 
-    // Unicast attempt count.
-	// The number of attempts before considering an unicast command
-	// to be failed.
-    uint32 unicast_attempt_count = 10;
+  // Unicast timeout.
+  // Set this to the value in which you at least expect an uplink frame from
+  // the device. The FUOTA server will wait for the given time before
+  // attempting a retry or continuing with the next step.
+  google.protobuf.Duration unicast_timeout = 9;
 
-    // FragmentationFragmentSize.
-    // This defines the size of each payload fragment. Please refer to the
-    // Regional Parameters specification for the maximum payload sizes
-    // per data-rate and region.
-    uint32 fragmentation_fragment_size = 11;
+  // Unicast attempt count.
+  // The number of attempts before considering an unicast command
+  // to be failed.
+  uint32 unicast_attempt_count = 10;
 
-    // Payload.
-    bytes payload = 12;
+  // FragmentationFragmentSize.
+  // This defines the size of each payload fragment. Please refer to the
+  // Regional Parameters specification for the maximum payload sizes
+  // per data-rate and region.
+  uint32 fragmentation_fragment_size = 11;
 
-    // Fragmentation redundancy.
-    // The number represents the additional redundant frames to send.
-    uint32 fragmentation_redundancy = 13;
+  // Payload.
+  bytes payload = 12;
 
-    // Fragmentation session index.
-    uint32 fragmentation_session_index = 14;
+  // Fragmentation redundancy.
+  // The number represents the additional redundant frames to send.
+  uint32 fragmentation_redundancy = 13;
 
-    // Fragmentation matrix.
-    uint32 fragmentation_matrix = 15;
+  // Fragmentation session index.
+  uint32 fragmentation_session_index = 14;
 
-    // Block ack delay.
-    uint32 fragmentation_block_ack_delay = 16;
+  // Fragmentation matrix.
+  uint32 fragmentation_matrix = 15;
 
-    // Descriptor (4 bytes).
-    bytes fragmentation_descriptor = 17;
+  // Block ack delay.
+  uint32 fragmentation_block_ack_delay = 16;
 
-    // Request fragmentation session status.
-    RequestFragmentationSessionStatus request_fragmentation_session_status = 18;
+  // Descriptor (4 bytes).
+  bytes fragmentation_descriptor = 17;
+
+  // Request fragmentation session status.
+  RequestFragmentationSessionStatus request_fragmentation_session_status = 18;
 }
 
-
 message CreateDeploymentRequest {
-    // Deployment.
-    Deployment deployment = 1;
+  // Deployment.
+  Deployment deployment = 1;
 }
 
 message CreateDeploymentResponse {
-    // ID of the created deployment.
-    string id = 1;
+  // ID of the created deployment.
+  string id = 1;
 }
 
 message GetDeploymentStatusRequest {
-    // Deployment ID.
-    string id = 1;
+  // Deployment ID.
+  string id = 1;
 }
 
 message DeploymentDeviceStatus {
-    // DevEUI.
-    string dev_eui = 1;
+  // DevEUI.
+  string dev_eui = 1;
 
-    // Created at.
-    google.protobuf.Timestamp created_at = 2;
+  // Created at.
+  google.protobuf.Timestamp created_at = 2;
 
-    // Updated at.
-    google.protobuf.Timestamp updated_at = 3;
+  // Updated at.
+  google.protobuf.Timestamp updated_at = 3;
 
-    // Multicast-group setup completed at.
-    google.protobuf.Timestamp mc_group_setup_completed_at = 4;
+  // Multicast-group setup completed at.
+  google.protobuf.Timestamp mc_group_setup_completed_at = 4;
 
-    // Multicast-session completed at.
-    google.protobuf.Timestamp mc_session_completed_at = 5;
+  // Multicast-session completed at.
+  google.protobuf.Timestamp mc_session_completed_at = 5;
 
-    // Fragmentation session setup completed at.
-    google.protobuf.Timestamp frag_session_setup_completed_at = 6;
+  // Fragmentation session setup completed at.
+  google.protobuf.Timestamp frag_session_setup_completed_at = 6;
 
-    // Fragmentation status completed at.
-    google.protobuf.Timestamp frag_status_completed_at = 7;
+  // Fragmentation status completed at.
+  google.protobuf.Timestamp frag_status_completed_at = 7;
 }
 
 message GetDeploymentStatusResponse {
-    // Created at.
-    google.protobuf.Timestamp created_at = 1;
+  // Created at.
+  google.protobuf.Timestamp created_at = 1;
 
-    // Updated at.
-    google.protobuf.Timestamp updated_at = 2;
+  // Updated at.
+  google.protobuf.Timestamp updated_at = 2;
 
-    // Multicast-group setup completed at.
-    google.protobuf.Timestamp mc_group_setup_completed_at = 3;
+  // Multicast-group setup completed at.
+  google.protobuf.Timestamp mc_group_setup_completed_at = 3;
 
-    // Multicast-session completed at.
-    google.protobuf.Timestamp mc_session_completed_at = 4;
+  // Multicast-session completed at.
+  google.protobuf.Timestamp mc_session_completed_at = 4;
 
-    // Fragmentation session setup completed at.
-    google.protobuf.Timestamp frag_session_setup_completed_at = 5;
+  // Fragmentation session setup completed at.
+  google.protobuf.Timestamp frag_session_setup_completed_at = 5;
 
-    // Enqueue completed at.
-    google.protobuf.Timestamp enqueue_completed_at = 6;
+  // Enqueue completed at.
+  google.protobuf.Timestamp enqueue_completed_at = 6;
 
-    // Fragmentation status completed at.
-    google.protobuf.Timestamp frag_status_completed_at = 7;
+  // Fragmentation status completed at.
+  google.protobuf.Timestamp frag_status_completed_at = 7;
 
-    // Per device status.
-    repeated DeploymentDeviceStatus device_status = 8;
+  // Per device status.
+  repeated DeploymentDeviceStatus device_status = 8;
 }
 
 message GetDeploymentDeviceLogsRequest {
-    // Deployment ID.
-    string deployment_id = 1;
+  // Deployment ID.
+  string deployment_id = 1;
 
-    // DevEUI.
-    string dev_eui = 2;
+  // DevEUI.
+  string dev_eui = 2;
 }
 
 message DeploymentDeviceLog {
-    // Created at.
-    google.protobuf.Timestamp created_at = 1;
+  // Created at.
+  google.protobuf.Timestamp created_at = 1;
 
-    // FPort.
-    uint32 f_port = 2;
+  // FPort.
+  uint32 f_port = 2;
 
-    // Command.
-    string command = 3;
+  // Command.
+  string command = 3;
 
-    // Fields.
-    map<string, string> fields = 4;
+  // Fields.
+  map<string, string> fields = 4;
 }
 
 message GetDeploymentDeviceLogsResponse {
-    repeated DeploymentDeviceLog logs = 1;
+  repeated DeploymentDeviceLog logs = 1;
 }
