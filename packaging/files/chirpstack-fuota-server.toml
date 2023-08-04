@@ -12,7 +12,7 @@
   # gRPC default resolver scheme.
   #
   # Set this to "dns" for enabling dns round-robin load balancing.
-  grpc_default_resolver_scheme="passthrough"
+  grpc_default_resolver_scheme=""
 
 
 # PostgreSQL settings.
@@ -72,11 +72,11 @@
   max_idle_connections=2
 
 
-# Application Server (integration) settings.
-[application_server]
+# ChirpStack (integration) settings.
+[chirpstack]
 
   # Event handler integration settings.
-  [application_server.event_handler]
+  [chirpstack.event_handler]
 
     # Payload marshaler.
     #
@@ -86,19 +86,19 @@
     marshaler="protobuf"
 
     # HTTP handler settings.
-    [application_server.event_handler.http]
+    [chirpstack.event_handler.http]
 
       # IP:Port to bind the event handler server to.
       bind="0.0.0.0:8090"
 
   # API integration settings.
-  [application_server.api]
+  [chirpstack.api]
 
-    # ChirpStack Application Server API server endpoint.
+    # ChirpStack API server endpoint.
     server="localhost:8080"
 
     # API token.
-    token="..."
+    token=".ChirpStack.API.Token"
 
     # Endpoint uses TLS.
     tls_enabled=false
@@ -117,3 +117,4 @@
     ca_cert=""
     tls_cert=""
     tls_key=""
+
