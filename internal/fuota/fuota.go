@@ -961,7 +961,8 @@ devLoop:
 				CID: fragmentation.FragSessionSetupReq,
 				Payload: &fragmentation.FragSessionSetupReqPayload{
 					FragSession: fragmentation.FragSessionSetupReqPayloadFragSession{
-						FragIndex: d.opts.FragmentationSessionIndex,
+						FragIndex:      d.opts.FragmentationSessionIndex,
+						McGroupBitMask: [4]bool{d.opts.MulticastGroupID == 0, d.opts.MulticastGroupID == 1, d.opts.MulticastGroupID == 2, d.opts.MulticastGroupID == 3},
 					},
 					NbFrag:   uint16(nbFrag),
 					FragSize: uint8(d.opts.FragSize),
@@ -1002,6 +1003,7 @@ devLoop:
 				Fields: hstore.Hstore{
 					Map: map[string]sql.NullString{
 						"frag_index":           sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.FragmentationSessionIndex)},
+						"McGroupBitMask":       sql.NullString{Valid: true, String: fmt.Sprintf("%d", uint32(1<<d.opts.MulticastGroupID))},
 						"nb_frag":              sql.NullString{Valid: true, String: fmt.Sprintf("%d", nbFrag)},
 						"frag_size":            sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.FragSize)},
 						"fragmentation_matrix": sql.NullString{Valid: true, String: fmt.Sprintf("%d", d.opts.FragmentationMatrix)},
