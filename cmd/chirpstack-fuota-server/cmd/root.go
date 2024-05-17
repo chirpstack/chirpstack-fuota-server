@@ -34,7 +34,8 @@ func init() {
 	viper.BindPFlag("general.log_level", rootCmd.PersistentFlags().Lookup("log-level"))
 
 	// default values
-	viper.SetDefault("postgresql.dsn", "postgres://localhost/chirpstack_fuota?sslmode=disable")
+	// viper.SetDefault("postgresql.dsn", "postgres://localhost/chirpstack_fuota?sslmode=disable")
+	viper.SetDefault("postgresql.dsn", "postgres://chirpstack_fuota:dbpassword@localhost/chirpstack_fuota?sslmode=disable")
 	viper.SetDefault("postgresql.automigrate", true)
 	viper.SetDefault("postgresql.max_idle_connections", 2)
 

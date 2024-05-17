@@ -1,10 +1,10 @@
 package main
 
 import (
+	"github.com/chirpstack/chirpstack-fuota-server/v4/cmd/chirpstack-fuota-server/cmd"
 	log "github.com/sirupsen/logrus"
 	"google.golang.org/grpc/grpclog"
-
-	"github.com/chirpstack/chirpstack-fuota-server/v4/cmd/chirpstack-fuota-server/cmd"
+	//"github.com/chirpstack/chirpstack-fuota-server/v4/cmd/chirpstack-fuota-server/cmd"
 )
 
 // grpcLogger implements a wrapper around the logrus Logger to make it
@@ -56,4 +56,10 @@ var version string // set by the compiler
 
 func main() {
 	cmd.Execute(version)
+	// api.InitConnection()
+	// api.SendMessage("{\"msg_type\":\"C2OP\",\"filter\":\"{\"id\":0,\"startingRow\":-1,\"maxRecordCount\":-1,\"orderByProperty\":\"reportedOn\",\"filterDeleted\":false,\"lastModified\":0,\"dateRange\":{\"id\":0,\"duration\":0,\"selection\":0,\"fromDate\":0,\"toDate\":0},\"lastSyncTimeServer\":1709616352182,\"fullImport\":false}\"}")
+	// api.ReceiveMessage()
+	// api.CloseConnection()
+
+	// api.GetDeviceEUIsByModelId("1")
 }
