@@ -33,5 +33,18 @@ create table deployment_log (
     fields hstore 
 );
 
+CREATE TABLE device (
+deviceId BIGINT PRIMARY KEY,
+	deviceCode VARCHAR(255),
+modelId BIGINT,
+ 	profileId BIGINT,
+firmwareVersion VARCHAR(255),
+ 	region VARCHAR(255),
+ 	macVersion VARCHAR(255),
+regionParameter VARCHAR(255),
+ 	status BIGINT
+);
+
+
 create index idx_deployment_log_deployment_id on deployment_log(deployment_id);
 create index idx_deployment_log_dev_eui on deployment_log(dev_eui);

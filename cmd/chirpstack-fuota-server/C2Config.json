@@ -1,7 +1,0 @@
-{
-    "username": "goutham.as",
-    "password": "HydeVil#71",
-    "c2serverWS": "wss://qa65.assetsense.com/ws/",
-    "c2serverREST": "https://qa65.assetsense.com/c2/services/deviceservice/getdevices",
-    "frequency": 12
-}

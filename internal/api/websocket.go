@@ -1,34 +1,79 @@
 package api
 
 import (
+	"context"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
-	"os"
+	"time"
 
 	"github.com/gorilla/websocket"
+
+	"github.com/gofrs/uuid"
+	"github.com/golang/protobuf/ptypes"
+	"google.golang.org/grpc"
+
+	"github.com/BurntSushi/toml"
+	"github.com/brocaar/lorawan"
+	"github.com/brocaar/lorawan/applayer/multicastsetup"
+	fuota "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
 )
 
-type C2ConfigType struct {
-	C2ServerREST string `json:"c2serverREST"`
-	C2ServerWS   string `json:"c2serverWS"`
-	Username     string `json:"username"`
-	Password     string `json:"password"`
-	Frequency    int    `json:"frequency"`
+type Config struct {
+	Username      string `toml:"username"`
+	Password      string `toml:"password"`
+	C2ServerWS    string `toml:"c2serverWS"`
+	C2ServerREST  string `toml:"c2serverREST"`
+	Frequency     int    `toml:"frequency"`
+	ApplicationId string `toml:"applicationId"`
 }
 
-var C2Config C2ConfigType
-var conn *websocket.Conn
+var region = map[int]fuota.Region{
+	6134: fuota.Region_AU915,
+	6135: fuota.Region_CN779,
+	6136: fuota.Region_EU868,
+	6137: fuota.Region_IN865,
+	6138: fuota.Region_EU433,
+	6139: fuota.Region_ISM2400,
+	6140: fuota.Region_KR920,
+	6141: fuota.Region_AS923,
+	6142: fuota.Region_US915,
+}
+
+type Device struct {
+	DeviceEUI  string `json:"deviceEUI"`
+	DeviceName string `json:"deviceName"`
+	// Add other device-related fields here.
+}
+
+type ResponseData struct {
+	FirmwareVersion string   `json:"firmwareVersion"`
+	Devices         []Device `json:"devices"`
+}
+
+var C2Config = OpenC2ConfigToml()
+var WSConn *websocket.Conn
+var GrpcConn *grpc.ClientConn
 var err error
 
-func InitConnection() {
+func InitGrpcConnection() {
+	dialOpts := []grpc.DialOption{
+		grpc.WithBlock(),
+		grpc.WithInsecure(),
+	}
 
-	//open C2Config.json file
-	C2Config = OpenC2ConfigJson()
+	GrpcConn, err = grpc.Dial("localhost:8070", dialOpts...)
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println("")
+	log.Println("Grpc Connection Established")
+}
 
-	//C2Config.json properties can be accessed by using C2Config.<property_name>
+func InitWSConnection() {
+
 	username := C2Config.Username
 	Password := C2Config.Password
 
@@ -39,73 +84,199 @@ func InitConnection() {
 	// websocketURL := C2Config.C2ServerWS + encodedAuth + "/true" // Device authentication
 	websocketURL := C2Config.C2ServerWS //User authentication
 
-	// Basic Authorization header
 	headers := make(http.Header)
 	// headers.Set("Device", "Basic "+encodedAuth) //Device authentication
 	headers.Set("Authorization", "Basic "+encodedAuth) //User authentication
 
-	// Establish WebSocket connection
-	conn, _, err = websocket.DefaultDialer.Dial(websocketURL, headers)
+	WSConn, _, err = websocket.DefaultDialer.Dial(websocketURL, headers)
 	if err != nil {
 		log.Fatal("C2 Websocket server is offline:", err)
 	}
 
-	fmt.Println("Websocket Connection Established")
+	fmt.Println("")
+	log.Println("Websocket Connection Established")
+}
 
+func CloseConnection() {
+	err = WSConn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+	if err != nil {
+		log.Println("Write close error:", err)
+	}
+
+	WSConn.Close()
+	fmt.Println("")
+	log.Println("Websocket Connection Closed")
 }
 
 func SendMessage(message string) {
-
 	// prepare request message string
 	// message = fmt.Sprintf(`{"msg_type": "req_bonded_devices", "device": "%s", "ls": 0}`, C2Config.Username)
 
-	err := conn.WriteMessage(websocket.TextMessage, []byte(message))
+	err := WSConn.WriteMessage(websocket.TextMessage, []byte(message))
 	if err != nil {
 		log.Fatal("Write error:", err)
 	}
-	fmt.Println("Websocket Message Sent: " + message)
+	fmt.Println("")
+	log.Println("Websocket Message Sent: " + message)
 }
 
 func ReceiveMessage() {
-
-	// Handle incoming messages from the WebSocket server
 	for {
-		_, message, err := conn.ReadMessage()
+		_, message, err := WSConn.ReadMessage()
 		if err != nil {
 			log.Fatal("Read error:", err)
 		}
-		fmt.Println("Websocket Message received: " + string(message))
-
+		fmt.Println("\n")
+		log.Println("Websocket Message received: " + string(message))
+		handleMessage(string(message))
 		//Add condition here to stop listening for incoming messages
 		break
 	}
 }
 
-func CloseConnection() {
-	err = conn.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
-	if err != nil {
-		log.Println("Write close error:", err)
+func ReceiveMessageDummy() {
+	for {
+		// _, message, err := WSConn.ReadMessage()
+		// if err != nil {
+		// 	log.Fatal("Read error:", err)
+		// }
+		dummyResponseJson := `[{"firmwareVersion":"1.0.0","devices":[{"deviceEUI":"500a57774bed650e","deviceName":"DeviceA","location":"Building 1, Floor 2"},{"deviceEUI":"deb16f73fe59744f","deviceName":"DeviceB","location":"Building 1, Floor 3"}]},{"firmwareVersion":"1.1.0","devices":[{"deviceEUI":"bcccfa1e80d50cff","deviceName":"DeviceC","location":"Building 2, Floor 1"},{"deviceEUI":"f6efb27acc31cb64","deviceName":"DeviceD","location":"Building 2, Floor 2"}]}]`
+		fmt.Println("\n")
+		log.Println("Dummy Message received: \n" + dummyResponseJson)
+		handleMessage(dummyResponseJson)
+		//Add condition here to stop listening for incoming messages
+		break
 	}
-
-	conn.Close()
-	fmt.Println("Websocket Connection Closed")
 }
 
-func OpenC2ConfigJson() C2ConfigType {
-	//open C2Config.json file
-	path := "C2Config.json"
-
-	config := C2ConfigType{}
-
-	c2Data, err := os.ReadFile(path)
-	if err != nil {
-		fmt.Println("Error opening c2.json file:", err)
+func handleMessage(message string) {
+	var firmwares []ResponseData
+	if err := json.Unmarshal([]byte(message), &firmwares); err != nil {
+		log.Printf("Error unmarshaling message: %v", err)
+		return
 	}
 
-	err = json.Unmarshal(c2Data, &config)
+	// Process each firmware version
+	for _, firmware := range firmwares {
+		createDeploymentRequest(firmware)
+	}
+}
+
+func createDeploymentRequest(firmware ResponseData) {
+	//get applicationId,regionId, firmware payload from C2
+	var applicationId string = C2Config.ApplicationId
+	var regionId int = 6136
+	var payload string = ""
+
+	go UpdateFirmware(firmware.FirmwareVersion, firmware.Devices, applicationId, regionId, payload)
+}
+
+func UpdateFirmware(firmwareVersion string, devices []Device, applicationId string, regionId int, payload string) {
+	mcRootKey, err := multicastsetup.GetMcRootKeyForGenAppKey(lorawan.AES128Key{0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 	if err != nil {
-		fmt.Println("Error decoding c2.json file:", err)
+		log.Fatal(err)
 	}
 
-	return config
+	fmt.Println("\n")
+	log.Println("FirmwareVersion: " + firmwareVersion)
+
+	client := fuota.NewFuotaServerServiceClient(GrpcConn)
+
+	resp, err := client.CreateDeployment(context.Background(), &fuota.CreateDeploymentRequest{
+		Deployment: &fuota.Deployment{
+			ApplicationId:                     applicationId,
+			Devices:                           GetDeploymentDevices(mcRootKey, devices),
+			MulticastGroupType:                fuota.MulticastGroupType_CLASS_C,
+			MulticastDr:                       5,
+			MulticastFrequency:                868100000,
+			MulticastGroupId:                  0,
+			MulticastTimeout:                  6,
+			MulticastRegion:                   region[regionId],
+			UnicastTimeout:                    ptypes.DurationProto(60 * time.Second),
+			UnicastAttemptCount:               1,
+			FragmentationFragmentSize:         50,
+			Payload:                           []byte(payload),
+			FragmentationRedundancy:           1,
+			FragmentationSessionIndex:         0,
+			FragmentationMatrix:               0,
+			FragmentationBlockAckDelay:        1,
+			FragmentationDescriptor:           []byte{0, 0, 0, 0},
+			RequestFragmentationSessionStatus: fuota.RequestFragmentationSessionStatus_AFTER_SESSION_TIMEOUT,
+		},
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	var id uuid.UUID
+	copy(id[:], resp.GetId())
+
+	// // log.Printf("deployment request sent: %s\n", id)
+
+	// ticker := time.NewTicker(1 * time.Minute)
+	// defer ticker.Stop()
+
+	// for {
+	// 	select {
+	// 	case <-ticker.C:
+	// 		GetStatus(id)
+	// 	}
+	// }
+}
+
+func GetDeploymentDevices(mcRootKey lorawan.AES128Key, devices []Device) []*fuota.DeploymentDevice {
+
+	// applicationId := api.GetApplicationId()
+
+	var deploymentDevices []*fuota.DeploymentDevice
+	for _, device := range devices {
+		fmt.Println("	device eui: " + device.DeviceEUI)
+		deploymentDevices = append(deploymentDevices, &fuota.DeploymentDevice{
+			DevEui:    device.DeviceEUI,
+			McRootKey: mcRootKey.String(),
+		})
+	}
+
+	return deploymentDevices
+}
+
+func GetStatus(id uuid.UUID) {
+
+	client := fuota.NewFuotaServerServiceClient(GrpcConn)
+
+	resp, err := client.GetDeploymentStatus(context.Background(), &fuota.GetDeploymentStatusRequest{
+		Id: id.String(),
+	})
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("deployment status: %s\n", resp.EnqueueCompletedAt)
+}
+
+func OpenC2ConfigToml() Config {
+	var cfg Config
+	if _, err := toml.DecodeFile("config.toml", &cfg); err != nil {
+		log.Println("Error reading config file:", err)
+	}
+	return cfg
+}
+
+func Scheduler() {
+	ticker := time.NewTicker(time.Duration(C2Config.Frequency) * time.Hour)
+	defer ticker.Stop()
+
+	for {
+		select {
+		case <-ticker.C:
+			CheckForFirmwareUpdate()
+		}
+	}
+}
+
+func CheckForFirmwareUpdate() {
+	SendMessage("")
+	ReceiveMessageDummy()
+	// go ReceiveMessage()
 }

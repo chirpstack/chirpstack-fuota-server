@@ -41,6 +41,7 @@ func Setup(conf *config.Config) error {
 	logrusOpts := []grpc_logrus.Option{
 		grpc_logrus.WithLevels(grpc_logrus.DefaultCodeToLevel),
 	}
+	// fmt.Println("\n\n token: " + conf.ChirpStack.API.Token + "\n\n")
 
 	opts := []grpc.DialOption{
 		grpc.WithBlock(),

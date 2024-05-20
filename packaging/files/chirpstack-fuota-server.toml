@@ -98,7 +98,7 @@
     server="localhost:8080"
 
     # API token.
-    token=".ChirpStack.API.Token"
+    token="eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjMyMjA4NDczLWNkZjktNGUzYi05M2JjLTBjOTRkMTQ4ZDI0NiIsInR5cCI6ImtleSJ9.STkoqRjpHFz2kDtyd09BqNrh8mHk4RojismyXbygTv8"
 
     # Endpoint uses TLS.
     tls_enabled=false

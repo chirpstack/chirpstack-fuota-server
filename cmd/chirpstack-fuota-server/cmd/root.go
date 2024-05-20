@@ -42,6 +42,8 @@ func init() {
 	viper.SetDefault("chirpstack.event_handler.marshaler", "protobuf")
 	viper.SetDefault("chirpstack.event_handler.http.bind", "0.0.0.0:8090")
 	viper.SetDefault("chirpstack.api.server", "localhost:8080")
+	viper.SetDefault("chirpstack.api.token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjMyMjA4NDczLWNkZjktNGUzYi05M2JjLTBjOTRkMTQ4ZDI0NiIsInR5cCI6ImtleSJ9.STkoqRjpHFz2kDtyd09BqNrh8mHk4RojismyXbygTv8")
+	viper.SetDefault("chirpstack.api.tls_enabled", false)
 	viper.SetDefault("fuota_server.api.bind", "0.0.0.0:8070")
 
 	rootCmd.AddCommand(configCmd)
