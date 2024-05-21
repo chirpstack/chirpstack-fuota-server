@@ -10,25 +10,24 @@ import (
 	"time"
 
 	"github.com/gorilla/websocket"
+	"github.com/spf13/viper"
 
 	"github.com/gofrs/uuid"
 	"github.com/golang/protobuf/ptypes"
 	"google.golang.org/grpc"
 
-	"github.com/BurntSushi/toml"
 	"github.com/brocaar/lorawan"
 	"github.com/brocaar/lorawan/applayer/multicastsetup"
 	fuota "github.com/chirpstack/chirpstack-fuota-server/v4/api/go"
 )
 
-type Config struct {
-	Username      string `toml:"username"`
-	Password      string `toml:"password"`
-	C2ServerWS    string `toml:"c2serverWS"`
-	C2ServerREST  string `toml:"c2serverREST"`
-	Frequency     int    `toml:"frequency"`
-	ApplicationId string `toml:"applicationId"`
-}
+// type Config struct {
+// 	Username     string `toml:"username"`
+// 	Password     string `toml:"password"`
+// 	C2ServerWS   string `toml:"c2serverWS"`
+// 	C2ServerREST string `toml:"c2serverREST"`
+// 	Frequency    int    `toml:"frequency"`
+// }
 
 var region = map[int]fuota.Region{
 	6134: fuota.Region_AU915,
@@ -53,7 +52,7 @@ type ResponseData struct {
 	Devices         []Device `json:"devices"`
 }
 
-var C2Config = OpenC2ConfigToml()
+// var C2Config = OpenC2ConfigToml()
 var WSConn *websocket.Conn
 var GrpcConn *grpc.ClientConn
 var err error
@@ -74,19 +73,22 @@ func InitGrpcConnection() {
 
 func InitWSConnection() {
 
-	username := C2Config.Username
-	Password := C2Config.Password
+	// username := C2Config.Username
+	// Password := C2Config.Password
+
+	username := getC2Username()
+	password := getC2Password()
 
 	//creating authentication string
-	authString := fmt.Sprintf("%s:%s", username, Password)
+	authString := fmt.Sprintf("%s:%s", username, password)
 	encodedAuth := base64.StdEncoding.EncodeToString([]byte(authString))
 
-	// websocketURL := C2Config.C2ServerWS + encodedAuth + "/true" // Device authentication
-	websocketURL := C2Config.C2ServerWS //User authentication
+	websocketURL := getC2serverUrl() + encodedAuth + "/true" // Device authentication
+	// websocketURL := getC2serverUrl() //User authentication
 
 	headers := make(http.Header)
-	// headers.Set("Device", "Basic "+encodedAuth) //Device authentication
-	headers.Set("Authorization", "Basic "+encodedAuth) //User authentication
+	headers.Set("Device", "Basic "+encodedAuth) //Device authentication
+	// headers.Set("Authorization", "Basic "+encodedAuth) //User authentication
 
 	WSConn, _, err = websocket.DefaultDialer.Dial(websocketURL, headers)
 	if err != nil {
@@ -164,7 +166,8 @@ func handleMessage(message string) {
 
 func createDeploymentRequest(firmware ResponseData) {
 	//get applicationId,regionId, firmware payload from C2
-	var applicationId string = C2Config.ApplicationId
+	// var applicationId string = C2Config.ApplicationId
+	var applicationId string = getApplicationId()
 	var regionId int = 6136
 	var payload string = ""
 
@@ -176,8 +179,6 @@ func UpdateFirmware(firmwareVersion string, devices []Device, applicationId stri
 	if err != nil {
 		log.Fatal(err)
 	}
-
-	fmt.Println("\n")
 	log.Println("FirmwareVersion: " + firmwareVersion)
 
 	client := fuota.NewFuotaServerServiceClient(GrpcConn)
@@ -226,8 +227,6 @@ func UpdateFirmware(firmwareVersion string, devices []Device, applicationId stri
 
 func GetDeploymentDevices(mcRootKey lorawan.AES128Key, devices []Device) []*fuota.DeploymentDevice {
 
-	// applicationId := api.GetApplicationId()
-
 	var deploymentDevices []*fuota.DeploymentDevice
 	for _, device := range devices {
 		fmt.Println("	device eui: " + device.DeviceEUI)
@@ -255,16 +254,16 @@ func GetStatus(id uuid.UUID) {
 	log.Printf("deployment status: %s\n", resp.EnqueueCompletedAt)
 }
 
-func OpenC2ConfigToml() Config {
-	var cfg Config
-	if _, err := toml.DecodeFile("config.toml", &cfg); err != nil {
-		log.Println("Error reading config file:", err)
-	}
-	return cfg
-}
+// func OpenC2ConfigToml() Config {
+// 	var cfg Config
+// 	if _, err := toml.DecodeFile("config.toml", &cfg); err != nil {
+// 		log.Println("Error reading config file:", err)
+// 	}
+// 	return cfg
+// }
 
 func Scheduler() {
-	ticker := time.NewTicker(time.Duration(C2Config.Frequency) * time.Hour)
+	ticker := time.NewTicker(time.Duration(getC2Frequency()) * time.Hour)
 	defer ticker.Stop()
 
 	for {
@@ -279,4 +278,114 @@ func CheckForFirmwareUpdate() {
 	SendMessage("")
 	ReceiveMessageDummy()
 	// go ReceiveMessage()
+}
+
+func getApplicationId() string {
+
+	viper.SetConfigName("c2int_runtime_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_runtime_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_runtime_config.toml file: %v", err)
+		}
+	}
+
+	applicationId := viper.GetString("chirpstack.application.id")
+	if applicationId == "" {
+		log.Fatal("Application id not found in c2int_runtime_config.toml file")
+	}
+
+	return applicationId
+}
+
+func getC2Username() string {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	username := viper.GetString("c2App.username")
+	if username == "" {
+		log.Fatal("username not found in c2int_boot_config.toml file")
+	}
+
+	return username
+}
+
+func getC2Password() string {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	password := viper.GetString("c2App.password")
+	if password == "" {
+		log.Fatal("password not found in c2int_boot_config.toml file")
+	}
+
+	return password
+}
+
+func getC2serverUrl() string {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	url := viper.GetString("c2App.serverUrl")
+	if url == "" {
+		log.Fatal("serverUrl not found in c2int_boot_config.toml file")
+	}
+
+	return url
+}
+
+func getC2Frequency() int {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	frequency := viper.GetInt("c2App.frequency")
+	if frequency == 0 {
+		log.Fatal("frequency not found in c2int_boot_config.toml file")
+	}
+
+	return frequency
 }

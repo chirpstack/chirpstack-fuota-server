@@ -3,6 +3,7 @@ package cmd
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"reflect"
 	"strings"
@@ -41,8 +42,9 @@ func init() {
 
 	viper.SetDefault("chirpstack.event_handler.marshaler", "protobuf")
 	viper.SetDefault("chirpstack.event_handler.http.bind", "0.0.0.0:8090")
-	viper.SetDefault("chirpstack.api.server", "localhost:8080")
-	viper.SetDefault("chirpstack.api.token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjMyMjA4NDczLWNkZjktNGUzYi05M2JjLTBjOTRkMTQ4ZDI0NiIsInR5cCI6ImtleSJ9.STkoqRjpHFz2kDtyd09BqNrh8mHk4RojismyXbygTv8")
+	viper.SetDefault("chirpstack.api.server", getChirpstackServer())
+	// viper.SetDefault("chirpstack.api.token", "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJjaGlycHN0YWNrIiwiaXNzIjoiY2hpcnBzdGFjayIsInN1YiI6IjMyMjA4NDczLWNkZjktNGUzYi05M2JjLTBjOTRkMTQ4ZDI0NiIsInR5cCI6ImtleSJ9.STkoqRjpHFz2kDtyd09BqNrh8mHk4RojismyXbygTv8")
+	viper.SetDefault("chirpstack.api.token", getChirpstackToken())
 	viper.SetDefault("chirpstack.api.tls_enabled", false)
 	viper.SetDefault("fuota_server.api.bind", "0.0.0.0:8070")
 
@@ -76,6 +78,7 @@ func initConfig() {
 		viper.AddConfigPath(".")
 		viper.AddConfigPath("$HOME/.config/chirpstack-fuota-server")
 		viper.AddConfigPath("/etc/chirpstack-fuota-server")
+		viper.AddConfigPath("/usr/local/bin")
 		if err := viper.ReadInConfig(); err != nil {
 			switch err.(type) {
 			case viper.ConfigFileNotFoundError:
@@ -142,4 +145,56 @@ func viperDecodeJSONSlice(rf reflect.Kind, rt reflect.Kind, data interface{}) (i
 	err := json.Unmarshal([]byte(raw), &out)
 
 	return out, err
+}
+
+func getChirpstackToken() string {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	// Get the bearer token
+	bearerToken := viper.GetString("chirpstack.bearer_token")
+	if bearerToken == "" {
+		log.Fatal("Bearer token not found in c2int_boot_config.toml file")
+	}
+
+	return bearerToken
+}
+
+func getChirpstackServer() string {
+
+	viper.SetConfigName("c2int_boot_config")
+	viper.SetConfigType("toml")
+	viper.AddConfigPath("/usr/local/bin")
+
+	if err := viper.ReadInConfig(); err != nil {
+		if _, ok := err.(viper.ConfigFileNotFoundError); ok {
+			log.Fatalf("c2int_boot_config.toml file not found: %v", err)
+		} else {
+			log.Fatalf("Error reading c2int_boot_config.toml file: %v", err)
+		}
+	}
+
+	host := viper.GetString("chirpstack.host")
+	if host == "" {
+		log.Fatal("host not found in c2int_boot_config.toml file")
+	}
+
+	port := viper.GetInt("chirpstack.port")
+	if port == 0 {
+		log.Fatal("port not found in c2int_boot_config.toml file")
+	}
+
+	serverUrl := fmt.Sprintf("%s:%d", host, port)
+
+	return serverUrl
 }
