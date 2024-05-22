@@ -1,0 +1,12 @@
+[
+    {
+        "firmwareVersion": "1.0.0",
+        "devices": [
+            {
+                "deviceEUI": "0080E11505ABD61F",
+                "deviceName": "DeviceA",
+                "location": "Building 1, Floor 2"
+            }
+        ]
+    }
+]
