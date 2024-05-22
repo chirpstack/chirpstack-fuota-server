@@ -1,0 +1,107 @@
+project_name: chirpstack-fuota-server
+release:
+  github:
+    owner: assetsense
+    name: chirpstack-fuota-server
+  disable: true
+  name_template: '{{.Tag}}'
+brew:
+  name: chirpstack-fuota-server
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  install: bin.install "chirpstack-fuota-server"
+scoop:
+  name: chirpstack-fuota-server
+  commit_author:
+    name: goreleaserbot
+    email: goreleaser@carlosbecker.com
+  url_template: https://github.com/assetsense/chirpstack-fuota-server/releases/download/{{ .Tag }}/{{ .ArtifactName }}
+builds:
+- id: chirpstack-fuota-server
+  goos:
+  - windows
+  - darwin
+  - linux
+  goarch:
+  - amd64
+  - "386"
+  - arm
+  - arm64
+  goarm:
+  - "5"
+  - "6"
+  - "7"
+  targets:
+  - windows_amd64
+  - windows_386
+  - darwin_amd64
+  - linux_amd64
+  - linux_386
+  - linux_arm_5
+  - linux_arm_6
+  - linux_arm_7
+  - linux_arm64
+  ignore:
+  - goos: darwin
+    goarch: "386"
+    goarm: ""
+  main: cmd/chirpstack-fuota-server/main.go
+  ldflags:
+  - -s -w -X main.version={{.Version}} -X main.commit={{.Commit}} -X main.date={{.Date}}
+  binary: chirpstack-fuota-server
+  lang: go
+archives:
+- id: default
+  builds:
+  - chirpstack-fuota-server
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  format: tar.gz
+  files:
+  - licence*
+  - LICENCE*
+  - license*
+  - LICENSE*
+  - readme*
+  - README*
+  - changelog*
+  - CHANGELOG*
+nfpm:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+  files:
+    packaging/files/chirpstack-fuota-server.service: /lib/systemd/system/chirpstack-fuota-server.service
+  config_files:
+    packaging/files/chirpstack-fuota-server.toml: /etc/chirpstack-fuota-server/chirpstack-fuota-server.toml
+  scripts:
+    postinstall: packaging/scripts/post-install.sh
+    preremove: packaging/scripts/pre-remove.sh
+  formats:
+  - deb
+  - rpm
+  vendor: ChirpStack
+  homepage: https://www.chirpstack.io/
+  maintainer: Orne Brocaar <info@brocaar.com>
+  description: ChirpStack FUOTA Server
+  license: MIT
+  bindir: /usr/bin
+snapcraft:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_{{ .Os }}_{{ .Arch }}{{ if .Arm }}v{{ .Arm }}{{ end }}'
+snapshot:
+  name_template: SNAPSHOT-{{ .ShortCommit }}
+checksum:
+  name_template: '{{ .ProjectName }}_{{ .Version }}_checksums.txt'
+  algorithm: sha256
+dist: dist
+sign:
+  cmd: gpg
+  args:
+  - --output
+  - $signature
+  - --detach-sig
+  - $artifact
+  signature: ${artifact}.sig
+  artifacts: none
+env_files:
+  github_token: ~/.config/goreleaser/github_token
+github_urls:
+  download: https://github.com
