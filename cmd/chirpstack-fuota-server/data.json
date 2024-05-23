@@ -1,0 +1,32 @@
+[
+    {
+        "firmwareVersion": "1.0.0",
+        "devices": [
+            {
+                "deviceEUI": "500a57774bed650e",
+                "deviceName": "DeviceA",
+                "location": "Building 1, Floor 2"
+            },
+            {
+                "deviceEUI": "deb16f73fe59744f",
+                "deviceName": "DeviceB",
+                "location": "Building 1, Floor 3"
+            }
+        ]
+    },
+    {
+        "firmwareVersion": "1.1.0",
+        "devices": [
+            {
+                "deviceEUI": "bcccfa1e80d50cff",
+                "deviceName": "DeviceC",
+                "location": "Building 2, Floor 1"
+            },
+            {
+                "deviceEUI": "f6efb27acc31cb64",
+                "deviceName": "DeviceD",
+                "location": "Building 2, Floor 2"
+            }
+        ]
+    }
+]

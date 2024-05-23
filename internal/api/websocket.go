@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -170,7 +171,40 @@ func handleMessage(message string) {
 
 	// Process each firmware version
 	for _, firmware := range firmwares {
+		createBinFile(firmware.FirmwareVersion)
 		createDeploymentRequest(firmware)
+	}
+}
+
+func createBinFile(version string) {
+	dirName := "firmwares"
+	fileName := version + ".bin"
+
+	if _, err := os.Stat(dirName); os.IsNotExist(err) {
+		err := os.MkdirAll(dirName, os.ModePerm)
+		if err != nil {
+			log.Fatalf("Failed to create directory: %v", err)
+		}
+		fmt.Printf("Directory %s created.\n", dirName)
+	} else {
+		fmt.Printf("Directory %s already exists.\n", dirName)
+	}
+
+	filePath := filepath.Join(dirName, fileName)
+
+	if _, err := os.Stat(filePath); os.IsNotExist(err) {
+		file, err := os.Create(filePath)
+		if err != nil {
+			log.Fatalf("Failed to create file: %v", err)
+		}
+		defer file.Close()
+		_, err = file.Write([]byte("00000000000000000"))
+		if err != nil {
+			log.Fatalf("Failed to write to file: %v", err)
+		}
+		fmt.Printf("File %s created and written to.\n", filePath)
+	} else {
+		fmt.Printf("File %s already exists.\n", filePath)
 	}
 }
 
@@ -179,7 +213,7 @@ func createDeploymentRequest(firmware ResponseData) {
 	// var applicationId string = C2Config.ApplicationId
 	var applicationId string = getApplicationId()
 	var regionId int = 6136
-	var payload []byte = getFirmwarePayload()
+	var payload []byte = getFirmwarePayload(firmware.FirmwareVersion)
 
 	go UpdateFirmware(firmware.FirmwareVersion, firmware.Devices, applicationId, regionId, payload)
 }
@@ -313,13 +347,12 @@ func getApplicationId() string {
 	return applicationId
 }
 
-func getFirmwarePayload() []byte {
-	filePath := "firmware.bin"
+func getFirmwarePayload(version string) []byte {
+	filePath := "firmwares/" + version + ".bin"
 
-	// Read the binary file
 	data, err := os.ReadFile(filePath)
 	if err != nil {
-		log.Fatalf("Error reading the firmware.bin file: %v", err)
+		log.Fatalf("Error reading the firmware binary file: %v", err)
 	}
 
 	return data
