@@ -34,14 +34,14 @@ create table deployment_log (
 );
 
 CREATE TABLE device (
-deviceId BIGINT PRIMARY KEY,
+    deviceId BIGINT PRIMARY KEY,
 	deviceCode VARCHAR(255),
-modelId BIGINT,
+    modelId BIGINT,
  	profileId BIGINT,
-firmwareVersion VARCHAR(255),
+    firmwareVersion VARCHAR(255),
  	region VARCHAR(255),
  	macVersion VARCHAR(255),
-regionParameter VARCHAR(255),
+    regionParameter VARCHAR(255),
  	status BIGINT
 );
 

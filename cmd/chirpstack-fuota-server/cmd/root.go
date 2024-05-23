@@ -76,8 +76,8 @@ func initConfig() {
 	} else {
 		viper.SetConfigName("chirpstack-fuota-server")
 		viper.AddConfigPath(".")
-		viper.AddConfigPath("$HOME/.config/chirpstack-fuota-server")
-		viper.AddConfigPath("/etc/chirpstack-fuota-server")
+		// viper.AddConfigPath("$HOME/.config/chirpstack-fuota-server")
+		// viper.AddConfigPath("/etc/chirpstack-fuota-server")
 		viper.AddConfigPath("/usr/local/bin")
 		if err := viper.ReadInConfig(); err != nil {
 			switch err.(type) {

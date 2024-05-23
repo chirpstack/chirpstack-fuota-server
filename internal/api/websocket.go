@@ -5,8 +5,10 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -128,7 +130,6 @@ func ReceiveMessage() {
 		if err != nil {
 			log.Fatal("Read error:", err)
 		}
-		fmt.Println("\n")
 		log.Println("Websocket Message received: " + string(message))
 		handleMessage(string(message))
 		//Add condition here to stop listening for incoming messages
@@ -137,18 +138,27 @@ func ReceiveMessage() {
 }
 
 func ReceiveMessageDummy() {
-	for {
-		// _, message, err := WSConn.ReadMessage()
-		// if err != nil {
-		// 	log.Fatal("Read error:", err)
-		// }
-		dummyResponseJson := `[{"firmwareVersion":"1.0.0","devices":[{"deviceEUI":"500a57774bed650e","deviceName":"DeviceA","location":"Building 1, Floor 2"},{"deviceEUI":"deb16f73fe59744f","deviceName":"DeviceB","location":"Building 1, Floor 3"}]},{"firmwareVersion":"1.1.0","devices":[{"deviceEUI":"bcccfa1e80d50cff","deviceName":"DeviceC","location":"Building 2, Floor 1"},{"deviceEUI":"f6efb27acc31cb64","deviceName":"DeviceD","location":"Building 2, Floor 2"}]}]`
-		fmt.Println("\n")
-		log.Println("Dummy Message received: \n" + dummyResponseJson)
-		handleMessage(dummyResponseJson)
-		//Add condition here to stop listening for incoming messages
-		break
+	dummyResponseJson := `[{"firmwareVersion":"1.0.0","devices":[{"deviceEUI":"500a57774bed650e","deviceName":"DeviceA","location":"Building 1, Floor 2"},{"deviceEUI":"deb16f73fe59744f","deviceName":"DeviceB","location":"Building 1, Floor 3"}]},{"firmwareVersion":"1.1.0","devices":[{"deviceEUI":"bcccfa1e80d50cff","deviceName":"DeviceC","location":"Building 2, Floor 1"},{"deviceEUI":"f6efb27acc31cb64","deviceName":"DeviceD","location":"Building 2, Floor 2"}]}]`
+	log.Println("Dummy Message received: \n" + dummyResponseJson)
+	handleMessage(dummyResponseJson)
+}
+
+func ReceiveMessageDummyFromFile() {
+	filePath := "data.json"
+	file, err := os.Open(filePath)
+	if err != nil {
+		log.Fatalf("Error opening file: %v", err)
 	}
+	defer file.Close()
+
+	fileContent, err := io.ReadAll(file)
+	if err != nil {
+		log.Fatalf("Error reading file: %v", err)
+	}
+
+	dummyResponseJson := string(fileContent)
+	log.Println("Dummy Message received: \n" + dummyResponseJson)
+	handleMessage(dummyResponseJson)
 }
 
 func handleMessage(message string) {
@@ -276,7 +286,8 @@ func Scheduler() {
 
 func CheckForFirmwareUpdate() {
 	SendMessage("")
-	ReceiveMessageDummy()
+	ReceiveMessageDummyFromFile()
+	// ReceiveMessageDummy()
 	// go ReceiveMessage()
 }
 
