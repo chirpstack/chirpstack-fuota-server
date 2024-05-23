@@ -179,12 +179,12 @@ func createDeploymentRequest(firmware ResponseData) {
 	// var applicationId string = C2Config.ApplicationId
 	var applicationId string = getApplicationId()
 	var regionId int = 6136
-	var payload string = ""
+	var payload []byte = getFirmwarePayload()
 
 	go UpdateFirmware(firmware.FirmwareVersion, firmware.Devices, applicationId, regionId, payload)
 }
 
-func UpdateFirmware(firmwareVersion string, devices []Device, applicationId string, regionId int, payload string) {
+func UpdateFirmware(firmwareVersion string, devices []Device, applicationId string, regionId int, payload []byte) {
 	mcRootKey, err := multicastsetup.GetMcRootKeyForGenAppKey(lorawan.AES128Key{0x09, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00})
 	if err != nil {
 		log.Fatal(err)
@@ -206,7 +206,7 @@ func UpdateFirmware(firmwareVersion string, devices []Device, applicationId stri
 			UnicastTimeout:                    ptypes.DurationProto(60 * time.Second),
 			UnicastAttemptCount:               1,
 			FragmentationFragmentSize:         50,
-			Payload:                           []byte(payload),
+			Payload:                           payload,
 			FragmentationRedundancy:           1,
 			FragmentationSessionIndex:         0,
 			FragmentationMatrix:               0,
@@ -311,6 +311,18 @@ func getApplicationId() string {
 	}
 
 	return applicationId
+}
+
+func getFirmwarePayload() []byte {
+	filePath := "firmware.bin"
+
+	// Read the binary file
+	data, err := os.ReadFile(filePath)
+	if err != nil {
+		log.Fatalf("Error reading the firmware.bin file: %v", err)
+	}
+
+	return data
 }
 
 func getC2Username() string {
