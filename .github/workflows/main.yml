@@ -17,7 +17,7 @@ jobs:
 
       -
         name: Run tests
-        run: docker-compose run --rm chirpstack-fuota-server make test
+        run: docker compose run --rm chirpstack-fuota-server make test
 
   dist:
     needs: test
@@ -36,7 +36,7 @@ jobs:
           aws-region: eu-west-1
       -
         name: Build distributable binaries
-        run: docker-compose run --rm chirpstack-fuota-server make dist
+        run: docker compose run --rm chirpstack-fuota-server make dist
       -
         name: Upload binaries to S3
         if: startsWith(github.ref, 'refs/tags/v')
