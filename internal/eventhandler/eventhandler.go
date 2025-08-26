@@ -149,7 +149,8 @@ func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}(uplinkEvent)
 
 	} else {
-		for id, f := range h.eventHandlers {
+		for id := range h.eventHandlers {
+			f := h.eventHandlers[id]
 			go func(pl integration.UplinkEvent) {
 				if err := f(context.Background(), pl); err != nil {
 					log.WithError(err).WithField("id", id).Error("integration/eventhandler: uplink event handler error")
