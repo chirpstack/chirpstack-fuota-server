@@ -14,3 +14,7 @@ coverage.out
 /dist
 /build
 /examples/class_c/class_c
+
+# excluded
+!.gitignore
+!.github
