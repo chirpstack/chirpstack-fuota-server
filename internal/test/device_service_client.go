@@ -6,37 +6,38 @@ package test
 
 import (
 	context "context"
+	reflect "reflect"
+
 	api "github.com/chirpstack/chirpstack/api/go/v4/api"
 	gomock "github.com/golang/mock/gomock"
 	grpc "google.golang.org/grpc"
 	emptypb "google.golang.org/protobuf/types/known/emptypb"
-	reflect "reflect"
 )
 
-// MockDeviceServiceClient is a mock of DeviceServiceClient interface
+// MockDeviceServiceClient is a mock of DeviceServiceClient interface.
 type MockDeviceServiceClient struct {
 	ctrl     *gomock.Controller
 	recorder *MockDeviceServiceClientMockRecorder
 }
 
-// MockDeviceServiceClientMockRecorder is the mock recorder for MockDeviceServiceClient
+// MockDeviceServiceClientMockRecorder is the mock recorder for MockDeviceServiceClient.
 type MockDeviceServiceClientMockRecorder struct {
 	mock *MockDeviceServiceClient
 }
 
-// NewMockDeviceServiceClient creates a new mock instance
+// NewMockDeviceServiceClient creates a new mock instance.
 func NewMockDeviceServiceClient(ctrl *gomock.Controller) *MockDeviceServiceClient {
 	mock := &MockDeviceServiceClient{ctrl: ctrl}
 	mock.recorder = &MockDeviceServiceClientMockRecorder{mock}
 	return mock
 }
 
-// EXPECT returns an object that allows the caller to indicate expected use
+// EXPECT returns an object that allows the caller to indicate expected use.
 func (m *MockDeviceServiceClient) EXPECT() *MockDeviceServiceClientMockRecorder {
 	return m.recorder
 }
 
-// Activate mocks base method
+// Activate mocks base method.
 func (m *MockDeviceServiceClient) Activate(arg0 context.Context, arg1 *api.ActivateDeviceRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -49,14 +50,14 @@ func (m *MockDeviceServiceClient) Activate(arg0 context.Context, arg1 *api.Activ
 	return ret0, ret1
 }
 
-// Activate indicates an expected call of Activate
+// Activate indicates an expected call of Activate.
 func (mr *MockDeviceServiceClientMockRecorder) Activate(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Activate", reflect.TypeOf((*MockDeviceServiceClient)(nil).Activate), varargs...)
 }
 
-// Create mocks base method
+// Create mocks base method.
 func (m *MockDeviceServiceClient) Create(arg0 context.Context, arg1 *api.CreateDeviceRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -69,14 +70,14 @@ func (m *MockDeviceServiceClient) Create(arg0 context.Context, arg1 *api.CreateD
 	return ret0, ret1
 }
 
-// Create indicates an expected call of Create
+// Create indicates an expected call of Create.
 func (mr *MockDeviceServiceClientMockRecorder) Create(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Create", reflect.TypeOf((*MockDeviceServiceClient)(nil).Create), varargs...)
 }
 
-// CreateKeys mocks base method
+// CreateKeys mocks base method.
 func (m *MockDeviceServiceClient) CreateKeys(arg0 context.Context, arg1 *api.CreateDeviceKeysRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -89,14 +90,14 @@ func (m *MockDeviceServiceClient) CreateKeys(arg0 context.Context, arg1 *api.Cre
 	return ret0, ret1
 }
 
-// CreateKeys indicates an expected call of CreateKeys
+// CreateKeys indicates an expected call of CreateKeys.
 func (mr *MockDeviceServiceClientMockRecorder) CreateKeys(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CreateKeys", reflect.TypeOf((*MockDeviceServiceClient)(nil).CreateKeys), varargs...)
 }
 
-// Deactivate mocks base method
+// Deactivate mocks base method.
 func (m *MockDeviceServiceClient) Deactivate(arg0 context.Context, arg1 *api.DeactivateDeviceRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -109,14 +110,14 @@ func (m *MockDeviceServiceClient) Deactivate(arg0 context.Context, arg1 *api.Dea
 	return ret0, ret1
 }
 
-// Deactivate indicates an expected call of Deactivate
+// Deactivate indicates an expected call of Deactivate.
 func (mr *MockDeviceServiceClientMockRecorder) Deactivate(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Deactivate", reflect.TypeOf((*MockDeviceServiceClient)(nil).Deactivate), varargs...)
 }
 
-// Delete mocks base method
+// Delete mocks base method.
 func (m *MockDeviceServiceClient) Delete(arg0 context.Context, arg1 *api.DeleteDeviceRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -129,14 +130,14 @@ func (m *MockDeviceServiceClient) Delete(arg0 context.Context, arg1 *api.DeleteD
 	return ret0, ret1
 }
 
-// Delete indicates an expected call of Delete
+// Delete indicates an expected call of Delete.
 func (mr *MockDeviceServiceClientMockRecorder) Delete(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Delete", reflect.TypeOf((*MockDeviceServiceClient)(nil).Delete), varargs...)
 }
 
-// DeleteKeys mocks base method
+// DeleteKeys mocks base method.
 func (m *MockDeviceServiceClient) DeleteKeys(arg0 context.Context, arg1 *api.DeleteDeviceKeysRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -149,14 +150,14 @@ func (m *MockDeviceServiceClient) DeleteKeys(arg0 context.Context, arg1 *api.Del
 	return ret0, ret1
 }
 
-// DeleteKeys indicates an expected call of DeleteKeys
+// DeleteKeys indicates an expected call of DeleteKeys.
 func (mr *MockDeviceServiceClientMockRecorder) DeleteKeys(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "DeleteKeys", reflect.TypeOf((*MockDeviceServiceClient)(nil).DeleteKeys), varargs...)
 }
 
-// Enqueue mocks base method
+// Enqueue mocks base method.
 func (m *MockDeviceServiceClient) Enqueue(arg0 context.Context, arg1 *api.EnqueueDeviceQueueItemRequest, arg2 ...grpc.CallOption) (*api.EnqueueDeviceQueueItemResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -169,14 +170,14 @@ func (m *MockDeviceServiceClient) Enqueue(arg0 context.Context, arg1 *api.Enqueu
 	return ret0, ret1
 }
 
-// Enqueue indicates an expected call of Enqueue
+// Enqueue indicates an expected call of Enqueue.
 func (mr *MockDeviceServiceClientMockRecorder) Enqueue(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Enqueue", reflect.TypeOf((*MockDeviceServiceClient)(nil).Enqueue), varargs...)
 }
 
-// FlushDevNonces mocks base method
+// FlushDevNonces mocks base method.
 func (m *MockDeviceServiceClient) FlushDevNonces(arg0 context.Context, arg1 *api.FlushDevNoncesRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -189,14 +190,14 @@ func (m *MockDeviceServiceClient) FlushDevNonces(arg0 context.Context, arg1 *api
 	return ret0, ret1
 }
 
-// FlushDevNonces indicates an expected call of FlushDevNonces
+// FlushDevNonces indicates an expected call of FlushDevNonces.
 func (mr *MockDeviceServiceClientMockRecorder) FlushDevNonces(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlushDevNonces", reflect.TypeOf((*MockDeviceServiceClient)(nil).FlushDevNonces), varargs...)
 }
 
-// FlushQueue mocks base method
+// FlushQueue mocks base method.
 func (m *MockDeviceServiceClient) FlushQueue(arg0 context.Context, arg1 *api.FlushDeviceQueueRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -209,14 +210,14 @@ func (m *MockDeviceServiceClient) FlushQueue(arg0 context.Context, arg1 *api.Flu
 	return ret0, ret1
 }
 
-// FlushQueue indicates an expected call of FlushQueue
+// FlushQueue indicates an expected call of FlushQueue.
 func (mr *MockDeviceServiceClientMockRecorder) FlushQueue(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FlushQueue", reflect.TypeOf((*MockDeviceServiceClient)(nil).FlushQueue), varargs...)
 }
 
-// Get mocks base method
+// Get mocks base method.
 func (m *MockDeviceServiceClient) Get(arg0 context.Context, arg1 *api.GetDeviceRequest, arg2 ...grpc.CallOption) (*api.GetDeviceResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -229,14 +230,14 @@ func (m *MockDeviceServiceClient) Get(arg0 context.Context, arg1 *api.GetDeviceR
 	return ret0, ret1
 }
 
-// Get indicates an expected call of Get
+// Get indicates an expected call of Get.
 func (mr *MockDeviceServiceClientMockRecorder) Get(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Get", reflect.TypeOf((*MockDeviceServiceClient)(nil).Get), varargs...)
 }
 
-// GetActivation mocks base method
+// GetActivation mocks base method.
 func (m *MockDeviceServiceClient) GetActivation(arg0 context.Context, arg1 *api.GetDeviceActivationRequest, arg2 ...grpc.CallOption) (*api.GetDeviceActivationResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -249,14 +250,14 @@ func (m *MockDeviceServiceClient) GetActivation(arg0 context.Context, arg1 *api.
 	return ret0, ret1
 }
 
-// GetActivation indicates an expected call of GetActivation
+// GetActivation indicates an expected call of GetActivation.
 func (mr *MockDeviceServiceClientMockRecorder) GetActivation(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetActivation", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetActivation), varargs...)
 }
 
-// GetKeys mocks base method
+// GetKeys mocks base method.
 func (m *MockDeviceServiceClient) GetKeys(arg0 context.Context, arg1 *api.GetDeviceKeysRequest, arg2 ...grpc.CallOption) (*api.GetDeviceKeysResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -269,14 +270,14 @@ func (m *MockDeviceServiceClient) GetKeys(arg0 context.Context, arg1 *api.GetDev
 	return ret0, ret1
 }
 
-// GetKeys indicates an expected call of GetKeys
+// GetKeys indicates an expected call of GetKeys.
 func (mr *MockDeviceServiceClientMockRecorder) GetKeys(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetKeys", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetKeys), varargs...)
 }
 
-// GetLinkMetrics mocks base method
+// GetLinkMetrics mocks base method.
 func (m *MockDeviceServiceClient) GetLinkMetrics(arg0 context.Context, arg1 *api.GetDeviceLinkMetricsRequest, arg2 ...grpc.CallOption) (*api.GetDeviceLinkMetricsResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -289,14 +290,14 @@ func (m *MockDeviceServiceClient) GetLinkMetrics(arg0 context.Context, arg1 *api
 	return ret0, ret1
 }
 
-// GetLinkMetrics indicates an expected call of GetLinkMetrics
+// GetLinkMetrics indicates an expected call of GetLinkMetrics.
 func (mr *MockDeviceServiceClientMockRecorder) GetLinkMetrics(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetLinkMetrics", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetLinkMetrics), varargs...)
 }
 
-// GetMetrics mocks base method
+// GetMetrics mocks base method.
 func (m *MockDeviceServiceClient) GetMetrics(arg0 context.Context, arg1 *api.GetDeviceMetricsRequest, arg2 ...grpc.CallOption) (*api.GetDeviceMetricsResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -309,14 +310,34 @@ func (m *MockDeviceServiceClient) GetMetrics(arg0 context.Context, arg1 *api.Get
 	return ret0, ret1
 }
 
-// GetMetrics indicates an expected call of GetMetrics
+// GetMetrics indicates an expected call of GetMetrics.
 func (mr *MockDeviceServiceClientMockRecorder) GetMetrics(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetMetrics", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetMetrics), varargs...)
 }
 
-// GetQueue mocks base method
+// GetNextFCntDown mocks base method.
+func (m *MockDeviceServiceClient) GetNextFCntDown(arg0 context.Context, arg1 *api.GetDeviceNextFCntDownRequest, arg2 ...grpc.CallOption) (*api.GetDeviceNextFCntDownResponse, error) {
+	m.ctrl.T.Helper()
+	varargs := []interface{}{arg0, arg1}
+	for _, a := range arg2 {
+		varargs = append(varargs, a)
+	}
+	ret := m.ctrl.Call(m, "GetNextFCntDown", varargs...)
+	ret0, _ := ret[0].(*api.GetDeviceNextFCntDownResponse)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetNextFCntDown indicates an expected call of GetNextFCntDown.
+func (mr *MockDeviceServiceClientMockRecorder) GetNextFCntDown(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	varargs := append([]interface{}{arg0, arg1}, arg2...)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetNextFCntDown", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetNextFCntDown), varargs...)
+}
+
+// GetQueue mocks base method.
 func (m *MockDeviceServiceClient) GetQueue(arg0 context.Context, arg1 *api.GetDeviceQueueItemsRequest, arg2 ...grpc.CallOption) (*api.GetDeviceQueueItemsResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -329,14 +350,14 @@ func (m *MockDeviceServiceClient) GetQueue(arg0 context.Context, arg1 *api.GetDe
 	return ret0, ret1
 }
 
-// GetQueue indicates an expected call of GetQueue
+// GetQueue indicates an expected call of GetQueue.
 func (mr *MockDeviceServiceClientMockRecorder) GetQueue(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetQueue", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetQueue), varargs...)
 }
 
-// GetRandomDevAddr mocks base method
+// GetRandomDevAddr mocks base method.
 func (m *MockDeviceServiceClient) GetRandomDevAddr(arg0 context.Context, arg1 *api.GetRandomDevAddrRequest, arg2 ...grpc.CallOption) (*api.GetRandomDevAddrResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -349,14 +370,14 @@ func (m *MockDeviceServiceClient) GetRandomDevAddr(arg0 context.Context, arg1 *a
 	return ret0, ret1
 }
 
-// GetRandomDevAddr indicates an expected call of GetRandomDevAddr
+// GetRandomDevAddr indicates an expected call of GetRandomDevAddr.
 func (mr *MockDeviceServiceClientMockRecorder) GetRandomDevAddr(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetRandomDevAddr", reflect.TypeOf((*MockDeviceServiceClient)(nil).GetRandomDevAddr), varargs...)
 }
 
-// List mocks base method
+// List mocks base method.
 func (m *MockDeviceServiceClient) List(arg0 context.Context, arg1 *api.ListDevicesRequest, arg2 ...grpc.CallOption) (*api.ListDevicesResponse, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -369,14 +390,14 @@ func (m *MockDeviceServiceClient) List(arg0 context.Context, arg1 *api.ListDevic
 	return ret0, ret1
 }
 
-// List indicates an expected call of List
+// List indicates an expected call of List.
 func (mr *MockDeviceServiceClientMockRecorder) List(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "List", reflect.TypeOf((*MockDeviceServiceClient)(nil).List), varargs...)
 }
 
-// Update mocks base method
+// Update mocks base method.
 func (m *MockDeviceServiceClient) Update(arg0 context.Context, arg1 *api.UpdateDeviceRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -389,14 +410,14 @@ func (m *MockDeviceServiceClient) Update(arg0 context.Context, arg1 *api.UpdateD
 	return ret0, ret1
 }
 
-// Update indicates an expected call of Update
+// Update indicates an expected call of Update.
 func (mr *MockDeviceServiceClientMockRecorder) Update(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Update", reflect.TypeOf((*MockDeviceServiceClient)(nil).Update), varargs...)
 }
 
-// UpdateKeys mocks base method
+// UpdateKeys mocks base method.
 func (m *MockDeviceServiceClient) UpdateKeys(arg0 context.Context, arg1 *api.UpdateDeviceKeysRequest, arg2 ...grpc.CallOption) (*emptypb.Empty, error) {
 	m.ctrl.T.Helper()
 	varargs := []interface{}{arg0, arg1}
@@ -409,7 +430,7 @@ func (m *MockDeviceServiceClient) UpdateKeys(arg0 context.Context, arg1 *api.Upd
 	return ret0, ret1
 }
 
-// UpdateKeys indicates an expected call of UpdateKeys
+// UpdateKeys indicates an expected call of UpdateKeys.
 func (mr *MockDeviceServiceClientMockRecorder) UpdateKeys(arg0, arg1 interface{}, arg2 ...interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
 	varargs := append([]interface{}{arg0, arg1}, arg2...)
