@@ -732,7 +732,7 @@ func (d *Deployment) stepCreateMulticastGroup(ctx context.Context) error {
 		GroupType:            d.opts.MulticastGroupType,
 		Dr:                   uint32(d.opts.MulticastDR),
 		Frequency:            d.opts.MulticastFrequency,
-		ClassBPingSlotPeriod: uint32(1 << int(5+d.opts.MulticastPingSlotPeriodicity)), // note: period = 2 ^ (5 + periodicity)
+		ClassBPingSlotPeriodicity: uint32(d.opts.MulticastPingSlotPeriodicity), 
 		ApplicationId:        d.opts.ApplicationID,
 		Region:               d.opts.MulticastRegion,
 	}

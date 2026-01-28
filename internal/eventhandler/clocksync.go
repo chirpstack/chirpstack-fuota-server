@@ -34,8 +34,8 @@ func handleClockSyncCommand(ctx context.Context, pl integration.UplinkEvent) err
 				log.WithError(err).Error("eventhandler: time since gps epoch to duration error")
 				continue
 			}
-		} else if rxInfo.Time != nil {
-			timeField, err = ptypes.Timestamp(rxInfo.Time)
+		} else if rxInfo.GwTime != nil {
+			timeField, err = ptypes.Timestamp(rxInfo.GwTime)
 			if err != nil {
 				log.WithError(err).Error("eventhandler: time to timeestamp error")
 				continue
