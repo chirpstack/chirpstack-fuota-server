@@ -14,7 +14,7 @@ WORKDIR $PROJECT_PATH
 RUN make dev-requirements
 RUN make
 
-FROM alpine:3.23.2 AS production
+FROM alpine:3.23.3 AS production
 
 RUN apk --no-cache add ca-certificates tzdata
 COPY --from=development /chirpstack-fuota-server/build/chirpstack-fuota-server /usr/bin/chirpstack-fuota-server
